@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Helvetica Neue", "Arial", sans-serif;
+  --color-primary: #2563eb;
+  --color-sidebar: #1e293b;
+  --color-app-bg: #f1f5f9;
+  --color-border-light: #e2e8f0;
+}
+
+@layer base {
+  body {
+    @apply bg-app-bg text-[#1e293b] antialiased;
+  }
+}
+
+.btn-primary {
+  @apply bg-primary text-white px-4 py-2 rounded-lg font-medium transition-all hover:bg-blue-700;
+}
+
+.btn-outline {
+  @apply bg-white border border-border-light text-[#1e293b] px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-50;
+}
+
+.card {
+  @apply bg-white border border-border-light rounded-xl shadow-sm;
+}

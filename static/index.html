@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMR Vision Pro | Chấm điểm tự động</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+</head>
+<body>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <main class="app-container" style="max-width: 1400px">
+        <header class="app-header">
+            <div class="logo">
+                <i class="ri-check-double-line"></i> OMR Smart Grader
+            </div>
+            <p>Hệ thống tự động chấm điểm & Xác minh thông tin Học Sinh</p>
+        </header>
+
+        <section class="upload-section">
+            <div class="teacher-input glass-panel" style="margin-bottom: 20px; padding: 25px; text-align: left;">
+                <h3 style="margin-bottom: 15px;"><i class="ri-file-list-3-line"></i> Nhập đáp án cho Mã Đề (Giáo viên)</h3>
+                <p style="color: var(--text-muted); margin-bottom: 10px; font-size: 0.9rem;">
+                    Nhập đáp án cách nhau bằng dấu phẩy (VD: A, B, C, D, A...). Nếu để trống, hệ thống chỉ hiển thị kết quả đọc được.
+                </p>
+                <textarea id="correct-answers-input" placeholder="A, B, C, D, A, B..." style="width: 100%; height: 60px; background: rgba(0,0,0,0.3); border: 1px solid var(--primary); color: white; border-radius: 8px; padding: 10px; font-family: monospace;"></textarea>
+            </div>
+
+            <input type="file" id="file-input" accept="image/*" hidden>
+            <div class="upload-area" id="drop-zone">
+                <div class="upload-icon">
+                    <i class="ri-file-search-line"></i>
+                </div>
+                <h3>Tải lên bài thi trắc nghiệm (Full Page)</h3>
+                <p>Hỗ trợ PNG, JPG</p>
+            </div>
+            <div class="camera-area" id="camera-section" style="display:none; position:relative; margin-top:10px; text-align:center; overflow: hidden; border-radius: 12px; background: rgba(0,0,0,0.5);">
+                <video id="camera-feed" autoplay playsinline style="width:100%; max-width:600px; display: block; margin: 0 auto;"></video>
+                <!-- Guide Frame Overlay -->
+                <div class="guide-frame" style="position:absolute; top:10%; left:15%; width:70%; height:80%; border:2px dashed #00ff88; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4); pointer-events:none; border-radius:5px; z-index: 10;">
+                   <span style="position:absolute; top:-25px; left:0; width:100%; text-align:center; color:#00ff88; font-weight:bold; text-shadow: 1px 1px 2px black;">Khớp giấy thi vào khung này</span>
+                </div>
+                <div style="position:absolute; bottom:20px; left:0; right:0; z-index:20;">
+                    <button class="btn-primary" id="btn-take-photo" style="width:200px; box-shadow: 0 4px 6px rgba(0,0,0,0.5);">
+                        <i class="ri-camera-fill"></i> Chụp & Chấm Trực Tiếp
+                    </button>
+                </div>
+                <canvas id="camera-canvas" style="display:none;"></canvas>
+            </div>
+            
+            <div style="text-align: center; margin-top: 15px;" id="camera-toggle-container">
+                <button class="btn-secondary" id="btn-toggle-camera" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 8px; color: white; cursor: pointer; transition: all 0.3s ease;">
+                    <i class="ri-camera-lens-line"></i> Dùng Camera / Khung Hướng Dẫn
+                </button>
+            </div>
+
+            <div class="loading-state hidden" id="loading-state">
+                <div class="spinner"></div>
+                <p>Đang phân tích định danh Học sinh, OCR, và chấm điểm OMR...</p>
+            </div>
+        </section>
+
+        <section class="results-section hidden" id="results-section">
+            <div class="result-layout" style="grid-template-columns: 1fr 1fr 1fr;">
+                
+                <!-- Cột 1: Thông tin phân tích -->
+                <div class="glass-panel" style="padding: 20px; display: flex; flex-direction: column;">
+                    <h3><i class="ri-account-box-line"></i> Thông tin Thí sinh</h3>
+                    
+                    <div class="info-card" style="margin-top:20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary);">
+                        <p style="color:var(--text-muted); font-size: 0.9rem;">Họ và Tên (OCR)</p>
+                        <h2 id="ocr-name" style="color: white; margin-bottom: 10px;">Đang tải...</h2>
+                        <img id="crop-name" src="" alt="Tên" style="max-height: 40px; margin-bottom: 15px; display: none;">
+                        
+                        <p style="color:var(--text-muted); font-size: 0.9rem;">Mã số Sinh viên (OMR)</p>
+                        <h2 id="ocr-mssv" style="color: #38bdf8; margin-bottom: 10px; font-family: monospace; letter-spacing: 2px;">???</h2>
+                        <img id="crop-mssv" src="" alt="MSSV" style="max-height: 40px; margin-bottom: 15px; display: none;">
+
+                        <p style="color:var(--text-muted); font-size: 0.9rem;">Mã Đề (OMR)</p>
+                        <h2 id="ocr-made" style="color: #a855f7; margin-bottom: 10px; font-family: monospace; letter-spacing: 2px;">???</h2>
+                        <img id="crop-made" src="" alt="Mã đề" style="max-height: 40px; display: none;">
+                    </div>
+
+                    <div id="grading-summary" class="info-card" style="margin-top:20px; background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 10px; border: 1px solid #10b981; display: none;">
+                        <h3 style="color:#10b981; text-align: center; margin-bottom: 10px;">ĐIỂM SỐ ONLINE</h3>
+                        <div style="font-size: 3rem; text-align: center; font-weight: bold; color: white;" id="final-score">10.0</div>
+                        <div style="text-align: center; color: var(--text-muted);" id="final-correct">Đúng: 0/0</div>
+                    </div>
+                </div>
+
+                <!-- Cột 2: Ảnh Bounding Boxes -->
+                <div class="result-image-container glass-panel">
+                    <h3><i class="ri-layout-masonry-line"></i> Bản đồ Bounding Boxes</h3>
+                    <img id="result-img" src="" alt="Visualize Box Result">
+                </div>
+                
+                <!-- Cột 3: Chi tiết điểm từng câu -->
+                <div class="result-details glass-panel">
+                    <div class="details-header">
+                        <h3><i class="ri-list-check"></i> Kết quả OMR</h3>
+                        <span class="badge" id="total-answers">0 câu</span>
+                    </div>
+                    
+                    <div class="answers-grid" id="answers-grid" style="grid-template-columns: 1fr; max-height: 500px;">
+                        <!-- Populate -->
+                    </div>
+                    
+                    <button class="btn-primary" id="btn-reset" style="margin-top: 20px; width: 100%;">
+                        <i class="ri-refresh-line"></i> Chấm bài khác
+                    </button>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "ZipGrade Web",
+  "description": "Ứng dụng chấm thi trắc nghiệm trực tuyến bằng camera, hỗ trợ tạo phiếu trả lời và quản lý điểm số.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "OMR Scanner",
+    "Quiz Management",
+    "Auto Grading"
+  ]
+}
