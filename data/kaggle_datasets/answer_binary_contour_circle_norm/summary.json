@@ -1,0 +1,31 @@
+{
+  "input_dir": "data\\kaggle_datasets\\answer_binary",
+  "output_dir": "data\\kaggle_datasets\\answer_binary_contour_circle_norm",
+  "splits": {
+    "train": {
+      "empty_input": 2048,
+      "empty_output": 2048,
+      "filled_input": 1024,
+      "filled_output": 1024
+    },
+    "val": {
+      "empty_input": 568,
+      "empty_output": 568,
+      "filled_input": 284,
+      "filled_output": 284
+    },
+    "test": {
+      "empty_input": 270,
+      "empty_output": 270,
+      "filled_input": 135,
+      "filled_output": 135
+    }
+  },
+  "methods": {
+    "partial_arc_circle_normalized": 1730,
+    "contour_circle_normalized": 2590,
+    "contour_circle_norm_fallback": 9
+  },
+  "failures": 0,
+  "total": 4329
+}

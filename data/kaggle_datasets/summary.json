@@ -1,0 +1,97 @@
+{
+  "splits": {
+    "test": 3,
+    "val": 6,
+    "train": 19
+  },
+  "tasks": {
+    "answer_binary": {
+      "total": 4329,
+      "by_split": {
+        "train": 3072,
+        "test": 405,
+        "val": 852
+      },
+      "by_split_label": {
+        "train": {
+          "1": 1024,
+          "0": 2048
+        },
+        "test": {
+          "1": 135,
+          "0": 270
+        },
+        "val": {
+          "1": 284,
+          "0": 568
+        }
+      }
+    },
+    "id_binary": {
+      "total": 1232,
+      "by_split": {
+        "train": 836,
+        "test": 132,
+        "val": 264
+      },
+      "by_split_label": {
+        "train": {
+          "1": 209,
+          "0": 627
+        },
+        "test": {
+          "1": 33,
+          "0": 99
+        },
+        "val": {
+          "1": 66,
+          "0": 198
+        }
+      }
+    },
+    "mssv_binary": {
+      "total": 896,
+      "by_split": {
+        "train": 608,
+        "test": 96,
+        "val": 192
+      },
+      "by_split_label": {
+        "train": {
+          "1": 152,
+          "0": 456
+        },
+        "test": {
+          "1": 24,
+          "0": 72
+        },
+        "val": {
+          "1": 48,
+          "0": 144
+        }
+      }
+    },
+    "ma_de_binary": {
+      "total": 336,
+      "by_split": {
+        "train": 228,
+        "test": 36,
+        "val": 72
+      },
+      "by_split_label": {
+        "train": {
+          "1": 57,
+          "0": 171
+        },
+        "test": {
+          "1": 9,
+          "0": 27
+        },
+        "val": {
+          "1": 18,
+          "0": 54
+        }
+      }
+    }
+  }
+}

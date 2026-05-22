@@ -57,6 +57,7 @@ def run_exam_pipeline(
     image,
     correct_answers: str = "",
     debug_artifacts: bool = False,
+    use_classifier: bool = True,
 ) -> dict:
     """Run the exam pipeline in memory.
 
@@ -78,20 +79,26 @@ def run_exam_pipeline(
         raise ValueError("Could not crop answer sheet regions.")
 
     crops = preprocess_text_crop_images(crops)
-    student_info = read_student_info_from_crops(crops)
+    student_info = read_student_info_from_crops(crops, use_classifier=use_classifier)
 
     answers = []
     omr_result_images = {}
+    omr_preproc_debug = {}
     for crop_name in ANSWER_CROP_NAMES:
+        crop_preproc = {}
         detected, result_image = process_omr_image(
             crops.get(crop_name),
             start_question_idx=len(answers) + 1,
             debug=debug_artifacts,
+            use_classifier=use_classifier,
+            preproc_debug=crop_preproc,
         )
         if detected:
             answers.extend(detected)
         if result_image is not None:
             omr_result_images[crop_name] = result_image
+        if crop_preproc:
+            omr_preproc_debug[crop_name] = crop_preproc
 
     grading = None
     if correct_answers and correct_answers.strip():
@@ -102,6 +109,7 @@ def run_exam_pipeline(
         visualized_image,
         crops,
         omr_result_images,
+        omr_preproc_debug=omr_preproc_debug,
     )
 
     return {
@@ -112,18 +120,20 @@ def run_exam_pipeline(
         "grading": grading,
         "result_image_url": image_urls["visualized"],
         "crops": image_urls["crops"],
+        "preprocess_images": image_urls["preprocess"],
     }
 
 
-def _save_debug_artifacts(artifact_store, visualized_image, crops, omr_result_images):
+def _save_debug_artifacts(artifact_store, visualized_image, crops, omr_result_images, omr_preproc_debug=None):
     crop_urls = {
         "ho_va_ten": None,
         "lop": None,
         "mssv": None,
         "ma_de": None,
     }
+    preprocess_urls = {}
     if not artifact_store:
-        return {"visualized": None, "crops": crop_urls}
+        return {"visualized": None, "crops": crop_urls, "preprocess": preprocess_urls}
 
     visualized_url = artifact_store.save_image("visualized_boxes.png", visualized_image)
 
@@ -133,12 +143,18 @@ def _save_debug_artifacts(artifact_store, visualized_image, crops, omr_result_im
     for name, image in omr_result_images.items():
         artifact_store.save_image(f"omr/{name}_result.png", image)
 
+    if omr_preproc_debug:
+        for crop_name, preproc in omr_preproc_debug.items():
+            for step_name, img in preproc.items():
+                url = artifact_store.save_image(f"preprocess/{crop_name}_{step_name}.png", img)
+                preprocess_urls[f"{crop_name}_{step_name}"] = url
+
     crop_urls["ho_va_ten"] = _artifact_crop_url(artifact_store, "ho_va_ten_refined")
     crop_urls["lop"] = _artifact_crop_url(artifact_store, "lop_refined")
     crop_urls["mssv"] = _artifact_crop_url(artifact_store, "mssv")
     crop_urls["ma_de"] = _artifact_crop_url(artifact_store, "ma_de")
 
-    return {"visualized": visualized_url, "crops": crop_urls}
+    return {"visualized": visualized_url, "crops": crop_urls, "preprocess": preprocess_urls}
 
 
 def _artifact_crop_url(artifact_store: ArtifactStore, name: str) -> str:

@@ -51,14 +51,14 @@ def visualize(img_path, output_path):
     # Normalized coordinates (0-1000) for Answer_sheet_A4.pdf layout
     # Calculated from detection in answer_sheet_page1.png
     regions = {
-        "ho_va_ten": (180, 25, 700, 60),
-        "lop":        (140, 90, 260, 60),
-        "mon":        (540, 90, 410, 60),
-        "mssv":       (130, 165, 470, 300),
-        "ma_de":      (710, 165, 220, 300),
-        "answer_1":   (80, 465, 290, 450),
-        "answer_2":   (355, 465, 290, 450),
-        "answer_3":   (645, 465, 290, 450),
+        "ho_va_ten": (155, 10, 750, 70),
+        "lop":        (115, 72, 290, 64),
+        "mon":        (545, 72, 430, 64),
+        "mssv":       (120, 170, 475, 335),
+        "ma_de":      (720, 170, 210, 335),
+        "answer_1":   (57, 495, 310, 495),
+        "answer_2":   (355, 495, 310, 495),
+        "answer_3":   (653, 495, 310, 495),
     }
     
     result_img = img.copy()

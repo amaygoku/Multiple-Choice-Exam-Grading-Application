@@ -1,0 +1,29 @@
+{
+  "input_dir": "data\\kaggle_datasets\\answer_binary",
+  "output_dir": "data\\kaggle_datasets\\answer_binary_ellipse_centered",
+  "splits": {
+    "train": {
+      "empty_input": 2048,
+      "empty_output": 2048,
+      "filled_input": 1024,
+      "filled_output": 1024
+    },
+    "val": {
+      "empty_input": 568,
+      "empty_output": 568,
+      "filled_input": 284,
+      "filled_output": 284
+    },
+    "test": {
+      "empty_input": 270,
+      "empty_output": 270,
+      "filled_input": 135,
+      "filled_output": 135
+    }
+  },
+  "methods": {
+    "ellipse_centered": 4329
+  },
+  "failures": 0,
+  "total": 4329
+}

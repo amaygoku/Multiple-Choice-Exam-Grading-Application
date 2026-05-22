@@ -74,10 +74,10 @@ def ocr_read_name(image_path):
     return ocr_read_name_image(crop_img)
 
 
-def read_student_info_from_crops(crops):
+def read_student_info_from_crops(crops, use_classifier=True):
     """Read MSSV, exam code, and name from in-memory crops."""
-    ma_de = extract_id_and_code_image(crops.get("ma_de"), 3)
-    mssv = extract_id_and_code_image(crops.get("mssv"), 8)
+    ma_de = extract_id_and_code_image(crops.get("ma_de"), 3, use_classifier=use_classifier)
+    mssv = extract_id_and_code_image(crops.get("mssv"), 8, use_classifier=use_classifier)
     name_crop = crops.get("ho_va_ten_refined")
     if name_crop is None:
         name_crop = crops.get("ho_va_ten")
@@ -90,9 +90,9 @@ def read_student_info_from_crops(crops):
     }
 
 
-def read_student_info(crops_dir):
-    ma_de = extract_id_and_code(os.path.join(crops_dir, "ma_de.png"), 3)
-    mssv = extract_id_and_code(os.path.join(crops_dir, "mssv.png"), 8)
+def read_student_info(crops_dir, use_classifier=True):
+    ma_de = extract_id_and_code(os.path.join(crops_dir, "ma_de.png"), 3, use_classifier=use_classifier)
+    mssv = extract_id_and_code(os.path.join(crops_dir, "mssv.png"), 8, use_classifier=use_classifier)
     name = ocr_read_name(os.path.join(crops_dir, "ho_va_ten_refined.png"))
 
     return {

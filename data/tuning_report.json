@@ -1,0 +1,115 @@
+{
+  "best": {
+    "config": {
+      "baseline_ratio": 1.2,
+      "baseline_offset": 40,
+      "q_col_ratio": 0.17
+    },
+    "answer_accuracy": 0.7841269841269841,
+    "exact_sheet_match": 0.0,
+    "total_sheets": 28
+  },
+  "candidate_count": 75,
+  "candidates": [
+    {
+      "config": {
+        "baseline_ratio": 1.2,
+        "baseline_offset": 40,
+        "q_col_ratio": 0.17
+      },
+      "answer_accuracy": 0.7841269841269841,
+      "exact_sheet_match": 0.0,
+      "total_sheets": 28
+    },
+    {
+      "config": {
+        "baseline_ratio": 1.2,
+        "baseline_offset": 40,
+        "q_col_ratio": 0.13
+      },
+      "answer_accuracy": 0.7833333333333333,
+      "exact_sheet_match": 0.0,
+      "total_sheets": 28
+    },
+    {
+      "config": {
+        "baseline_ratio": 1.2,
+        "baseline_offset": 40,
+        "q_col_ratio": 0.15
+      },
+      "answer_accuracy": 0.7817460317460317,
+      "exact_sheet_match": 0.0,
+      "total_sheets": 28
+    },
+    {
+      "config": {
+        "baseline_ratio": 1.2,
+        "baseline_offset": 60,
+        "q_col_ratio": 0.17
+      },
+      "answer_accuracy": 0.7626984126984127,
+      "exact_sheet_match": 0.0,
+      "total_sheets": 28
+    },
+    {
+      "config": {
+        "baseline_ratio": 1.2,
+        "baseline_offset": 60,
+        "q_col_ratio": 0.13
+      },
+      "answer_accuracy": 0.7603174603174603,
+      "exact_sheet_match": 0.0,
+      "total_sheets": 28
+    },
+    {
+      "config": {
+        "baseline_ratio": 1.2,
+        "baseline_offset": 60,
+        "q_col_ratio": 0.15
+      },
+      "answer_accuracy": 0.7603174603174603,
+      "exact_sheet_match": 0.0,
+      "total_sheets": 28
+    },
+    {
+      "config": {
+        "baseline_ratio": 1.3,
+        "baseline_offset": 40,
+        "q_col_ratio": 0.13
+      },
+      "answer_accuracy": 0.7277777777777777,
+      "exact_sheet_match": 0.0,
+      "total_sheets": 28
+    },
+    {
+      "config": {
+        "baseline_ratio": 1.3,
+        "baseline_offset": 40,
+        "q_col_ratio": 0.15
+      },
+      "answer_accuracy": 0.7277777777777777,
+      "exact_sheet_match": 0.0,
+      "total_sheets": 28
+    },
+    {
+      "config": {
+        "baseline_ratio": 1.3,
+        "baseline_offset": 40,
+        "q_col_ratio": 0.17
+      },
+      "answer_accuracy": 0.7277777777777777,
+      "exact_sheet_match": 0.0,
+      "total_sheets": 28
+    },
+    {
+      "config": {
+        "baseline_ratio": 1.3,
+        "baseline_offset": 60,
+        "q_col_ratio": 0.13
+      },
+      "answer_accuracy": 0.7277777777777777,
+      "exact_sheet_match": 0.0,
+      "total_sheets": 28
+    }
+  ]
+}

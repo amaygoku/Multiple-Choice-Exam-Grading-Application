@@ -29,9 +29,12 @@ class ProcessExamResponse(BaseModel):
     message: str = ""
     student_info: Optional[StudentInfo] = None
     answers: Optional[List[str]] = None
+    answers_by_method: Optional[Dict[str, List[str]]] = None
     grading: Optional[GradingResult] = None
+    grading_by_method: Optional[Dict[str, Optional[GradingResult]]] = None
     result_image_url: Optional[str] = None
     crops: Optional[Dict[str, Optional[str]]] = None
+    preprocess_images: Optional[Dict[str, Optional[str]]] = None
     error: Optional[str] = None
 
 
