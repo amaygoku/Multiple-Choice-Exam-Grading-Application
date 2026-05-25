@@ -10,7 +10,7 @@ from crop import crop_regions_image
 from detect_paper import align_document_image
 from grade_system import grade_paper
 from ocr import read_student_info_from_crops
-from omr_pipeline import process_omr_image
+from omr_pipeline import DEFAULT_OMR_CONFIG, OMR_CONFIG_V2, process_omr_image
 from preprocessing_crop import preprocess_text_crop_images
 
 from backend.core.config import RESULTS_DIR
@@ -58,11 +58,17 @@ def run_exam_pipeline(
     correct_answers: str = "",
     debug_artifacts: bool = False,
     use_classifier: bool = True,
+    layout_version: str = "v1",
 ) -> dict:
     """Run the exam pipeline in memory.
 
     Filesystem writes happen only when debug_artifacts=True.
     """
+    if layout_version == "v2":
+        # Classifier models are trained on v1 cell aspect ratios/positions.
+        # Traditional pipeline is 100% accurate for v2, so we force-bypass classifier.
+        use_classifier = False
+
     artifact_store = ArtifactStore() if debug_artifacts else None
     if artifact_store:
         artifact_store.prepare()
@@ -74,12 +80,15 @@ def run_exam_pipeline(
     if artifact_store:
         artifact_store.save_image("aligned_paper.png", aligned_image)
 
-    visualized_image, crops = crop_regions_image(aligned_image)
+    visualized_image, crops = crop_regions_image(aligned_image, layout_version=layout_version)
+
     if visualized_image is None or not crops:
         raise ValueError("Could not crop answer sheet regions.")
 
     crops = preprocess_text_crop_images(crops)
     student_info = read_student_info_from_crops(crops, use_classifier=use_classifier)
+
+    omr_config = OMR_CONFIG_V2 if layout_version == "v2" else DEFAULT_OMR_CONFIG
 
     answers = []
     omr_result_images = {}
@@ -92,6 +101,7 @@ def run_exam_pipeline(
             debug=debug_artifacts,
             use_classifier=use_classifier,
             preproc_debug=crop_preproc,
+            config=omr_config,
         )
         if detected:
             answers.extend(detected)

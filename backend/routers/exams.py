@@ -15,6 +15,7 @@ async def upload_file(
     correct_answers: str = Form(""),
     debug_artifacts: bool = Form(True),
     force_legacy_for_camera: bool = Form(False),
+    layout_version: str = Form("v1"),
 ):
     try:
         is_camera_capture = (file.filename == "camera_capture.png")
@@ -25,6 +26,7 @@ async def upload_file(
             correct_answers,
             debug_artifacts=debug_artifacts,
             use_classifier=use_classifier,
+            layout_version=layout_version,
         )
     except Exception as exc:
         return {
@@ -47,6 +49,7 @@ async def process_exam(
         False,
         description="If true, force camera_capture.png to use legacy OMR scoring (no classifier).",
     ),
+    layout_version: str = Form("v1", description="Layout version to use ('v1' or 'v2')"),
 ):
     try:
         is_camera_capture = (file.filename == "camera_capture.png")
@@ -57,9 +60,11 @@ async def process_exam(
             correct_answers,
             debug_artifacts=debug_artifacts,
             use_classifier=use_classifier,
+            layout_version=layout_version,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
 
 
 @api_router.post("/grade", response_model=GradingResult, summary="Grade answers only")

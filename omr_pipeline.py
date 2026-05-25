@@ -41,9 +41,24 @@ class OMRConfig:
     use_lighting_normalization: bool = True
     lighting_sigma: float = 25.0
     lighting_gain: float = 180.0
+    min_aspect_ratio: float = 0.35
+    max_aspect_ratio: float = 0.9
 
 
 DEFAULT_OMR_CONFIG = OMRConfig()
+
+OMR_CONFIG_V2 = OMRConfig(
+    crop_pad_top=6,
+    crop_pad_bottom=6,
+    crop_pad_left=9,
+    crop_pad_right=11,
+    q_col_ratio=0.0,
+    normalized_width=330,
+    min_aspect_ratio=0.22,
+    max_aspect_ratio=0.55,
+    empty_score_threshold=0.22
+)
+
 
 
 def order_points(pts):
@@ -100,6 +115,34 @@ def normalize_answer_area(image, config, preproc_debug=None):
         config.alignment_c,
     )
 
+    # Clear question numbers on the left and header text "A B C D" at the top of layout v2 answer crops
+    if config.normalized_width == 330:
+        h_img, w_img = binary.shape[:2]
+        
+        # 1. Clear question numbers on the left using vertical projection
+        col_sums = np.sum(binary, axis=0) // 255
+        border_col = -1
+        search_w = min(w_img, 45)
+        thresh_val = int(h_img * 0.40)
+        for col in range(3, search_w):
+            if col_sums[col] > thresh_val:
+                border_col = col
+                break
+        if border_col > 1:
+            binary[:, :border_col - 1] = 0
+
+        # 2. Clear letters "A B C D" at the top using horizontal projection
+        row_sums = np.sum(binary, axis=1) // 255
+        border_row = -1
+        search_h = min(h_img, 50)
+        thresh_w = int(w_img * 0.50)
+        for row in range(3, search_h):
+            if row_sums[row] > thresh_w:
+                border_row = row
+                break
+        if border_row > 1:
+            binary[:border_row - 1, :] = 0
+
     kernel_size = max(3, int(config.alignment_close_kernel))
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_size, kernel_size))
     merged = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=2)
@@ -118,7 +161,9 @@ def normalize_answer_area(image, config, preproc_debug=None):
         if h <= 0 or w <= 0:
             continue
         aspect_ratio = w / float(h)
-        if not 0.35 <= aspect_ratio <= 0.9:
+        min_aspect = float(getattr(config, "min_aspect_ratio", 0.35))
+        max_aspect = float(getattr(config, "max_aspect_ratio", 0.9))
+        if not min_aspect <= aspect_ratio <= max_aspect:
             continue
         if area > candidate_area:
             candidate = contour
@@ -211,12 +256,11 @@ def pick_bubbled_indices(tots, col_baselines, config):
         return picked, row_min, ranked_scores
 
     picked.append(top["idx"])
-    for rank, ratio_threshold in ((1, config.second_ratio_threshold), (2, config.third_ratio_threshold)):
-        if rank >= len(ranked_scores):
-            break
+    for rank in range(1, len(ranked_scores)):
         candidate = ranked_scores[rank]
         if candidate["score"] < config.empty_score_threshold:
             continue
+        ratio_threshold = config.second_ratio_threshold if rank == 1 else config.third_ratio_threshold
         if candidate["score"] + config.extra_margin_threshold < top["score"] * ratio_threshold:
             continue
         picked.append(candidate["idx"])
@@ -354,10 +398,17 @@ def process_omr_image(
             cv2.rectangle(output, (left + x1, top + y1), (left + x2, top + y2), (0, 255, 0), 2)
         all_tots.append(tots)
 
+    cell_area = cell_width * row_height
+    max_baseline = int(cell_area * 0.16)
+
     col_baselines = []
     for col in range(num_choices):
         col_vals = sorted(all_tots[row][col] for row in range(num_rows))
-        col_baselines.append(col_vals[len(col_vals) // 2])
+        # Use 25th percentile (len // 4) instead of median (len // 2)
+        # to prevent baseline escalation when a choice is chosen very frequently.
+        # Cap the baseline to prevent escalation in extreme cases (e.g. 100% selection of one option).
+        val_25th = col_vals[len(col_vals) // 4]
+        col_baselines.append(min(max_baseline, val_25th))
 
     answers = []
     for row in range(num_rows):

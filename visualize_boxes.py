@@ -51,14 +51,14 @@ def visualize(img_path, output_path):
     # Normalized coordinates (0-1000) for Answer_sheet_A4.pdf layout
     # Calculated from detection in answer_sheet_page1.png
     regions = {
-        "ho_va_ten": (155, 10, 750, 70),
-        "lop":        (115, 72, 290, 64),
-        "mon":        (545, 72, 430, 64),
-        "mssv":       (120, 170, 475, 335),
-        "ma_de":      (720, 170, 210, 335),
-        "answer_1":   (57, 495, 310, 495),
-        "answer_2":   (355, 495, 310, 495),
-        "answer_3":   (653, 495, 310, 495),
+        "ho_va_ten": (165, 22, 730, 65),
+        "lop":        (125, 80, 285, 65),
+        "mon":        (545, 80, 435, 65),
+        "mssv":       (130, 170, 465, 320),
+        "ma_de":      (720, 170, 190, 320),
+        "answer_1":   (72, 500, 260, 475),
+        "answer_2":   (377, 500, 260, 475),
+        "answer_3":   (690, 500, 260, 475),
     }
     
     result_img = img.copy()
@@ -80,7 +80,7 @@ def visualize(img_path, output_path):
         nx, ny, nw, nh = refine_box_contour(img, bx, by, bw, bh)
         
         # Step 3: Crop the refined region and save
-        margin = 5 # Slightly larger margin for A4 scan
+        margin = 2 if name in ("mssv", "ma_de") else 5
         cx = max(0, nx - margin)
         cy = max(0, ny - margin)
         cw = min(img.shape[1] - cx, nw + 2 * margin)

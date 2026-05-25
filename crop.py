@@ -2,8 +2,7 @@ import cv2
 import os
 
 
-REGIONS = {
-
+REGIONS_V1 = {
         "ho_va_ten": (155, 10, 750, 70),
         "lop":        (115, 72, 290, 64),
         "mon":        (545, 72, 430, 64),
@@ -12,6 +11,18 @@ REGIONS = {
         "answer_1":   (57, 495, 310, 495),
         "answer_2":   (355, 495, 310, 495),
         "answer_3":   (653, 495, 310, 495),
+}
+
+# Khung code v2 để người dùng tự sửa tham số tọa độ (định dạng: rx, ry, rw, rh trong hệ 1000x1000)
+REGIONS_V2 = {
+        "ho_va_ten": (165, 22, 730, 65),
+        "lop":        (125, 80, 285, 65),
+        "mon":        (545, 80, 435, 65),
+        "mssv":       (130, 170, 465, 320),
+        "ma_de":      (720, 170, 190, 320),
+        "answer_1":   (72, 500, 260, 475),
+        "answer_2":   (377, 500, 260, 475),
+        "answer_3":   (690, 500, 260, 475),
 }
 
 def refine_box_contour(img, x, y, w, h):
@@ -42,8 +53,8 @@ def refine_box_contour(img, x, y, w, h):
             
     return best_rect
 
-def crop_regions_image(img):
-    """Crop configured regions from an aligned answer sheet image."""
+def crop_regions_image(img, layout_version="v1"):
+    """Crop configured regions from an aligned answer sheet image based on layout_version."""
     if img is None:
         return None, {}
 
@@ -51,13 +62,15 @@ def crop_regions_image(img):
     result_img = img.copy()
     crops = {}
 
-    for name, (rx, ry, rw, rh) in REGIONS.items():
+    regions = REGIONS_V2 if layout_version == "v2" else REGIONS_V1
+
+    for name, (rx, ry, rw, rh) in regions.items():
         bx, by = int(rx * w / 1000), int(ry * h / 1000)
         bw, bh = int(rw * w / 1000), int(rh * h / 1000)
         
         nx, ny, nw, nh = refine_box_contour(img, bx, by, bw, bh)
         
-        margin = 5
+        margin = 2 if name in ("mssv", "ma_de") else 5
         cx, cy = max(0, nx - margin), max(0, ny - margin)
         cw, ch = min(img.shape[1] - cx, nw + 2 * margin), min(img.shape[0] - cy, nh + 2 * margin)
         
@@ -70,9 +83,9 @@ def crop_regions_image(img):
     return result_img, crops
 
 
-def crop_regions(img_path, output_visualized_path, crops_dir):
+def crop_regions(img_path, output_visualized_path, crops_dir, layout_version="v1"):
     img = cv2.imread(img_path)
-    result_img, crops = crop_regions_image(img)
+    result_img, crops = crop_regions_image(img, layout_version=layout_version)
     if result_img is None:
         return False
 
@@ -82,3 +95,4 @@ def crop_regions(img_path, output_visualized_path, crops_dir):
 
     cv2.imwrite(output_visualized_path, result_img)
     return True
+
