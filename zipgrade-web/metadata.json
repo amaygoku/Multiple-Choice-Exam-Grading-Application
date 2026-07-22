@@ -1,6 +1,6 @@
 {
   "name": "ZipGrade Web",
-  "description": "Ứng dụng chấm thi trắc nghiệm trực tuyến bằng camera, hỗ trợ tạo phiếu trả lời và quản lý điểm số.",
+  "description": "A camera-based online multiple-choice grading app with answer sheet generation and score management.",
   "requestFramePermissions": [
     "camera"
   ],

@@ -1,4 +1,4 @@
-import { Camera, Plus, AlertCircle, BookOpen, ClipboardList, Users } from 'lucide-react';
+import { Camera, Plus, AlertCircle, BookOpen, ClipboardList, Trash2, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { ClassRoom, ScannedResult } from '../types';
 
@@ -7,9 +7,10 @@ interface DashboardProps {
   results: ScannedResult[];
   onStartScanner: (classId?: string, examId?: string) => void;
   onCreateClass: () => void;
+  onDeleteResult: (resultId: string, submissionId?: string) => void;
 }
 
-export default function Dashboard({ classes, results, onStartScanner, onCreateClass }: DashboardProps) {
+export default function Dashboard({ classes, results, onStartScanner, onCreateClass, onDeleteResult }: DashboardProps) {
   const avgScore = results.length > 0
     ? (results.reduce((acc, curr) => acc + curr.score, 0) / results.length).toFixed(1)
     : '0';
@@ -20,11 +21,11 @@ export default function Dashboard({ classes, results, onStartScanner, onCreateCl
   return (
     <div className="space-y-10">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Teacher Workspace</h2>
+        <div className="min-w-0">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Teacher Workspace</h2>
           <p className="text-slate-500 mt-1">Manage classes, rosters, exams, exam codes, and scanned results.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button onClick={onCreateClass} className="btn-outline flex items-center gap-2">
             <Plus size={18} />
             <span>Create Class</span>
@@ -43,7 +44,7 @@ export default function Dashboard({ classes, results, onStartScanner, onCreateCl
         <StatCard icon={<Camera size={20} />} label="Average Score" value={`${avgScore}/10`} />
       </div>
 
-      <section className="grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-8">
+      <section className="grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-6 lg:gap-8">
         <div className="card p-6">
           <h3 className="text-lg font-black text-slate-900 mb-5">Active Classes</h3>
           <div className="space-y-3">
@@ -67,18 +68,21 @@ export default function Dashboard({ classes, results, onStartScanner, onCreateCl
         </div>
 
         <div className="card overflow-hidden">
-          <div className="bg-slate-50 px-6 py-3 border-b border-border-light grid grid-cols-[1.5fr_1.1fr_1fr_0.8fr_0.8fr] text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-            <div>Student</div>
-            <div>Class / Exam</div>
-            <div className="text-center">Exam Code</div>
-            <div className="text-center">Correct</div>
-            <div className="text-right">Status</div>
-          </div>
+          <div className="overflow-x-auto">
+            <div className="min-w-[760px]">
+              <div className="bg-slate-50 px-6 py-3 border-b border-border-light grid grid-cols-[1.5fr_1.1fr_1fr_0.8fr_0.8fr_auto] text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                <div>Student</div>
+                <div>Class / Exam</div>
+                <div className="text-center">Exam Code</div>
+                <div className="text-center">Correct</div>
+                <div className="text-right">Status</div>
+                <div className="text-right">Action</div>
+              </div>
 
-          <div className="divide-y divide-gray-50">
-            {results.length > 0 ? (
-              results.slice(0, 10).map((result) => (
-                <div key={result.id} className="px-6 py-4 grid grid-cols-[1.5fr_1.1fr_1fr_0.8fr_0.8fr] items-center text-sm hover:bg-slate-50/50 transition-colors">
+              <div className="divide-y divide-gray-50">
+                {results.length > 0 ? (
+                  results.slice(0, 10).map((result) => (
+                    <div key={result.id} className="px-6 py-4 grid grid-cols-[1.5fr_1.1fr_1fr_0.8fr_0.8fr_auto] items-center text-sm hover:bg-slate-50/50 transition-colors gap-3">
                   <div>
                     <div className="font-semibold text-slate-800">{result.studentName}</div>
                     <div className="font-mono text-[11px] text-slate-400">{result.studentMssv}</div>
@@ -94,18 +98,29 @@ export default function Dashboard({ classes, results, onStartScanner, onCreateCl
                       {result.status}
                     </span>
                   </div>
-                </div>
-              ))
-            ) : (
-              <div className="py-20 flex flex-col items-center justify-center text-center px-10">
-                <AlertCircle size={40} className="text-slate-200 mb-4" />
-                <p className="text-slate-400 font-medium">No papers have been graded yet.</p>
-                <p className="text-slate-300 text-xs mt-1 italic">Create an exam, add exam codes, then scan answer sheets.</p>
+                  <div className="text-right">
+                    <button
+                      onClick={() => onDeleteResult(result.id, result.submissionId)}
+                      className="inline-flex items-center justify-center p-2 rounded-lg text-red-600 hover:bg-red-50"
+                      title="Delete history"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-20 flex flex-col items-center justify-center text-center px-10">
+                    <AlertCircle size={40} className="text-slate-200 mb-4" />
+                    <p className="text-slate-400 font-medium">No papers have been graded yet.</p>
+                    <p className="text-slate-300 text-xs mt-1 italic">Create an exam, add exam codes, then scan answer sheets.</p>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
           {results.length > 0 && (
-            <div className="px-6 py-4 border-t border-border-light bg-slate-50/30 flex justify-between items-center">
+            <div className="px-4 sm:px-6 py-4 border-t border-border-light bg-slate-50/30 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
               <span className="text-xs text-slate-400 font-medium">{matchedCount} matched submissions out of {results.length}</span>
               <button className="btn-outline py-1 px-3 text-[10px] uppercase font-bold">Export CSV</button>
             </div>

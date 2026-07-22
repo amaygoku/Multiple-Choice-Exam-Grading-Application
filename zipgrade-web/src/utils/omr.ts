@@ -18,7 +18,7 @@ export interface BubbleCoordinate {
 // In a real app, these would be generated based on a template.
 export const generateCoordinates = (numQuestions: number): BubbleCoordinate[] => {
   const coords: BubbleCoordinate[] = [];
-  const options: AnswerOption[] = ['A', 'B', 'C', 'D', 'E'];
+  const options: AnswerOption[] = ['A', 'B', 'C', 'D'];
   const cols = numQuestions > 10 ? 2 : 1;
   const rows = numQuestions / cols;
 

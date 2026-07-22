@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import (
+    Boolean,
     JSON,
     DateTime,
     Float,
@@ -119,7 +120,15 @@ class Submission(Base):
     correct_count: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     total_questions: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="unmatched")
+    manual_override: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    source_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    aligned_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     result_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    student_info: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    grading: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    crops: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    omr_images: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    preprocess_images: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     scanned_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
