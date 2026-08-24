@@ -1,0 +1,15 @@
+;/*FB_PKG_DELIM*/
+
+__d("FBUnifiedVideoFeedbackBar_comet_reels_save_button_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("2350")}};l.default=e}),98);
+__d("FBUnifiedVideoMediaContentContainer_comet_reels_video_footer_defer_loading_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("9315")}};l.default=e}),98);
+__d("FBUnifiedVideoMediaContentContainer_comet_video_document_picture_in_picture_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("23607")}};l.default=e}),98);
+__d("FBUnifiedVideoMediaContentContainer_enable_chapters_pill_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("1928")}};l.default=e}),98);
+__d("FBUnifiedVideoMediaFooter_comet_enable_reels_ads_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("7085")}};l.default=e}),98);
+__d("FBUnifiedVideoMediaFooter_enable_ai_embodiment_chat_pill_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("10228")}};l.default=e}),98);
+__d("FBUnifiedVideoMediaFooter_enable_group_character_ai_info_pill_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("15595")}};l.default=e}),98);
+__d("FBUnifiedVideoMediaFooter_enable_meta_ai_pill_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("18341")}};l.default=e}),98);
+__d("FBUnifiedVideoMediaFooter_enable_video_augment_pills_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("7749")}};l.default=e}),98);
+__d("FBUnifiedVideoMediaHeaderControls_enable_chapters_pill_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("1928")}};l.default=e}),98);
+__d("FBUnifiedVideoMenu_fb_reels_ranking_debug_tool_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("21334")}};l.default=e}),98);
+__d("ShouldEnableBakedInTextUnifiedVideo.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("20985")}};l.default=e}),98);
+__d("usePushPipEngagementCounts_comet_video_document_picture_in_picture_gk.relayprovider",["gkx"],(function(t,n,r,o,a,i,l){"use strict";var e={get:function(){return r("gkx")("23607")}};l.default=e}),98);

@@ -1,0 +1,3 @@
+;/*FB_PKG_DELIM*/
+
+__d("LSDeleteThenInsertAdminApprovalRequest",[],(function(t,n,r,o,a,i){function e(){var e=arguments,t=e[e.length-1],n=[],r=[];return t.sequence([function(n){return t.filter(t.db.table(26).fetch([[[e[0],e[1]]]]),function(n){return t.i64.eq(n.threadKey,e[0])&&t.i64.eq(t.i64.cast([0,0]),t.i64.cast([0,0]))&&t.i64.eq(n.contactId,e[1])&&t.i64.gt(n.authorityLevel,e[3])}).next().then(function(n){var r=n.done,o=n.value;return r?t.db.table(26).put({threadKey:e[0],contactId:e[1],authorityLevel:e[3],subscribeSource:e[2]}):0})},function(e){return t.resolve(r)}])}e.__sproc_name__="LSMailboxDeleteThenInsertAdminApprovalRequestStoredProcedure",e.__tables__=["group_membership_approval_requests"],a.exports=e}),null);

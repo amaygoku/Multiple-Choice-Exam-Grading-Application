@@ -1,0 +1,98 @@
+{
+  "version": "4.0.0-beta.7",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "text",
+      "score": 0.9576166868209839,
+      "points": [
+        [
+          120.16983914375305,
+          17.18757128715515
+        ],
+        [
+          181.1232407093048,
+          17.18757128715515
+        ],
+        [
+          181.1232407093048,
+          51.75704550743103
+        ],
+        [
+          120.16983914375305,
+          51.75704550743103
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.954150915145874,
+      "points": [
+        [
+          269.58238220214844,
+          16.08398675918579
+        ],
+        [
+          326.838698387146,
+          16.08398675918579
+        ],
+        [
+          326.838698387146,
+          53.281086444854736
+        ],
+        [
+          269.58238220214844,
+          53.281086444854736
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.936376690864563,
+      "points": [
+        [
+          193.77069425582886,
+          20.820162057876587
+        ],
+        [
+          243.14958429336548,
+          20.820162057876587
+        ],
+        [
+          243.14958429336548,
+          51.57603669166565
+        ],
+        [
+          193.77069425582886,
+          51.57603669166565
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "afad20cc7afcfba2a2ed_crop_12.png",
+  "imageData": null,
+  "imageHeight": 59,
+  "imageWidth": 635
+}

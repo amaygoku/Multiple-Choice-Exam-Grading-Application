@@ -1,0 +1,98 @@
+{
+  "version": "4.0.0-beta.7",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "text",
+      "score": 0.963754415512085,
+      "points": [
+        [
+          178.06841673851014,
+          19.033294200897217
+        ],
+        [
+          234.56830325126649,
+          19.033294200897217
+        ],
+        [
+          234.56830325126649,
+          56.00442361831665
+        ],
+        [
+          178.06841673851014,
+          56.00442361831665
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9546739459037781,
+      "points": [
+        [
+          33.839107036590576,
+          10.380818748474121
+        ],
+        [
+          91.70501623153686,
+          10.380818748474121
+        ],
+        [
+          91.70501623153686,
+          51.778287124633785
+        ],
+        [
+          33.839107036590576,
+          51.778287124633785
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9519866704940796,
+      "points": [
+        [
+          109.49124774932861,
+          14.744498920440673
+        ],
+        [
+          154.93974423408508,
+          14.744498920440673
+        ],
+        [
+          154.93974423408508,
+          46.77732124328613
+        ],
+        [
+          109.49124774932861,
+          46.77732124328613
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "db3a336f695fe801b14e_crop_10.png",
+  "imageData": null,
+  "imageHeight": 58,
+  "imageWidth": 641
+}

@@ -1,0 +1,173 @@
+\documentclass[../Main.tex]{subfiles}
+\begin{document}
+This chapter introduces the background and scope of this thesis. It presents the
+motivation behind the development of an OCR/OMR-based grading application,
+defines the objectives and scope of the work, outlines the proposed technical
+direction, and describes the organization of the remaining chapters.
+
+\section{Motivation}
+\label{section:1.1}
+Assessment is an essential activity in education because it helps teachers observe learning, provide feedback, and make academic decisions. In classroom practice, assessment results are valuable not only as final grades but also as evidence for adjusting subsequent instruction. Black and Wiliam argue that assessment becomes educationally valuable when evidence of student achievement is used by teachers and learners to decide the next steps in instruction~\cite{black1998assessment}. Nicol and Macfarlane-Dick further emphasize that effective feedback helps students understand their current performance, expected performance, and the gap between them~\cite{nicol2006formative}. Therefore, assessment results need to be accurate, timely, and inspectable if they are to support learning effectively.
+
+Multiple-choice examinations remain widely used in schools, universities, and training programs because they can assess many students under consistent conditions and cover a broad range of learning objectives. In many settings, these examinations are still conducted on paper because printed answer sheets can be deployed in ordinary classrooms without requiring each student to have a computer, a stable internet connection, or access to an online testing platform. This makes paper-based multiple-choice testing practical, especially for frequent quizzes, midterm tests, entrance screening, and course-wide evaluations.
+
+However, the convenience of paper-based testing often shifts the burden to the grading stage. After an exam, teachers must identify each student, determine the exam code, compare marked answers with the corresponding answer key, calculate scores, and record results for later management. When there are many students or multiple exam codes, this workflow becomes repetitive, time-consuming, and prone to errors. A missed mark, a mismatched answer key, an incorrectly entered student ID, or a copied score in the wrong record can affect fairness and create additional rechecking work.
+
+The problem is therefore not only slow score calculation, but the lack of a reliable and reviewable workflow for managing paper-based grading from answer-sheet capture to final records. Delayed results reduce the usefulness of feedback, while fragmented records across images, spreadsheets, answer keys, and class lists make it harder for teachers to verify and manage grading outcomes. Existing grading tools and OMR-based systems address parts of this problem, but they do not always fit a lightweight single-teacher workflow that combines recognition, teacher review, submission storage, and result management in one application.
+
+This practical need is also reflected in current grading products. Gradescope
+supports platform-based assessment and grading management, ZipGrade supports
+mobile-based scanning and grading of multiple-choice answer sheets, and
+commercial OMR software such as Remark Office OMR focuses on structured form
+processing and data extraction
+\cite{gradescope2026,zipgrade2026,remarkoffice2026}. These solutions show that
+automatic support for paper-based grading is feasible, but they also suggest
+that existing product directions do not fully coincide with the focused
+single-teacher application targeted in this thesis.
+
+Solving this problem would directly benefit teachers, students, and
+educational institutions. Teachers could reduce repetitive manual checking,
+minimize data-entry errors, and return results more quickly. Students could
+receive feedback earlier and more consistently. Institutions could maintain
+more structured records of examinations, submissions, scores, and
+question-level performance for later monitoring. The same need also appears in
+paper-based surveys, attendance forms, training assessments, and other
+structured forms where marked choices and identity fields must be processed
+together. On that basis, Section~\ref{section:1.2} defines the objectives and
+scope of the proposed application.
+
+\iffalse
+Khi đặt vấn đề, sinh viên cần làm nổi bật mức độ cấp thiết, tầm quan trọng và/hoặc quy mô của bài toán của mình.
+
+Gợi ý cách trình bày cho sinh viên: Xuất phát từ tình hình thực tế gì, dẫn đến vấn đề hoặc bài toán gì. Vấn đề hoặc bài toán đó, nếu được giải quyết, đem lại lợi ích gì, cho những ai, còn có thể được áp dụng vào các lĩnh vực khác nữa không. Sinh viên cần lưu ý phần này chỉ trình bày vấn đề, tuyệt đối không trình bày giải pháp.
+
+\fi
+\section{Objectives and scope of the graduation thesis}
+\label{section:1.2}
+Based on the practical gap identified in Section~\ref{section:1.1}, the
+objective of this thesis is to develop a lightweight teacher-oriented web
+application that supports the grading workflow of one teacher. More
+specifically, the thesis aims: (i) to support the capture or upload of
+answer-sheet images and prepare them for subsequent recognition and grading;
+(ii) to recognize essential grading information, including student ID, student
+name, exam code, and selected answers; (iii) to match the recognized answers
+with the corresponding answer key of each exam code and calculate the grading
+result automatically; (iv) to provide a teacher-centered review workflow in
+which OCR/OMR outputs can be inspected and corrected before the final
+submission is stored; and (v) to organize grading-related data, including
+classes, students, examinations, exam codes, answer keys, and submissions,
+within one consistent web application.
+
+The scope of this thesis is limited to a web-based grading and submission
+management tool for a single teacher. The application focuses on structured
+paper-based multiple-choice answer sheets with predefined layouts and on textual
+fields directly related to grading. It does not target essay grading, free-form
+handwritten answers, or highly unstructured documents. In addition, the current
+scope does not include a multi-user architecture, administrator functions,
+role-based access control, or collaborative use among multiple teachers.
+Therefore, the application is developed as a single-teacher grading support tool
+rather than a complete school-wide management platform. Detailed discussion of
+the problem domain, technical approach, and implementation is presented in the
+following chapters.
+
+\iffalse
+Sinh viên trước tiên cần trình bày tổng quan các kết quả của các nghiên cứu hiện nay cho bài toán giới thiệu ở phần \ref{section:1.1} (đối với đề tài nghiên cứu), hoặc về các sản phẩm hiện tại/về nhu cầu của người dùng (đối với đề tài ứng dụng). Tiếp đến, sinh viên tiến hành so sánh và đánh giá tổng quan các sản phẩm/nghiên cứu này.
+
+Dựa trên các phân tích và đánh giá ở trên, sinh viên khái quát lại các hạn chế hiện tại đang gặp phải. Trên cơ sở đó, sinh viên sẽ hướng tới giải quyết vấn đề cụ thể gì, khắc phục hạn chế gì, phát triển phần mềm \textbf{có các chức năng chính gì}, tạo nên đột phá gì, v.v.
+
+Trong phần này, sinh viên lưu ý chỉ trình bày tổng quan, không đi vào chi tiết của vấn đề hoặc giải pháp. Nội dung chi tiết sẽ được trình bày trong các chương tiếp theo, đặc biệt là trong Chương 5.
+
+\fi
+\section{Tentative solution}
+\label{section:1.3}
+To address the objectives presented in Section~\ref{section:1.2}, this thesis
+proposes a teacher-oriented web application that integrates answer-sheet image
+processing, OCR/OMR-based recognition, automatic grading, teacher review, and
+submission management within one consistent workflow. The solution is intended
+for structured paper-based multiple-choice answer sheets and is designed around
+the practical grading activities of a single teacher, from image acquisition to
+reviewed result storage and later inspection.
+
+First, to support the capture or upload of answer-sheet images and prepare them
+for subsequent recognition and grading, the thesis follows a document image
+processing direction. Answer-sheet images captured by camera or uploaded from
+local files are treated as structured document images and are prepared through
+alignment, preprocessing, and region extraction so that later recognition can be
+performed more reliably.
+
+Second, to recognize essential grading information, the proposed solution
+combines OMR and OCR according to the structure of the answer sheet. OMR is used
+for predefined mark-based regions such as student ID,
+exam code, and selected answers, while OCR is used for the student-name text
+region. This combined direction is chosen because the answer sheet contains both
+structured marks and flexible text, which cannot be handled effectively by only
+one recognition method.
+
+Third, to support automatic grading, the application compares detected answers
+with the answer key corresponding to each exam code and calculates the grading
+result automatically. This direction is intended to reduce repetitive manual
+answer checking and provide a more consistent grading process.
+
+Fourth, to ensure that OCR/OMR outputs can be inspected before final storage,
+the proposed solution adopts a teacher-centered review workflow. Instead of
+storing the generated result immediately, the application presents recognized
+student information, exam code, selected answers, and grading results to the
+teacher for review and correction. This mechanism is important because real
+answer-sheet images may still contain ambiguous marks, handwriting variation, or
+image-quality issues.
+
+Fifth, to support grading-related data management, the proposed solution is
+implemented as a web application that organizes classes, students,
+examinations, exam codes, answer keys, submissions, detected answers, and
+grading results within one consistent workflow. In this way, the thesis does not
+treat answer-sheet recognition as an isolated technical task, but as part of a
+complete grading application for one teacher.
+
+The expected contribution of this thesis is a practical and integrated grading
+application for structured paper-based multiple-choice examinations. The
+application is expected to reduce repetitive manual work, improve the
+consistency of grading and submission management, and provide a reviewable
+workflow that is more suitable for practical teacher use. The detailed design,
+implementation, and evaluation of this solution are presented in the following
+chapters.
+
+\iffalse
+Từ việc xác định rõ nhiệm vụ cần giải quyết ở phần \ref{section:1.2}, sinh viên đề xuất định hướng giải pháp của mình theo trình tự sau: (i) Sinh viên trước tiên trình bày sẽ giải quyết vấn đề theo định hướng, phương pháp, thuật toán, kỹ thuật, hay công nghệ nào; Tiếp theo, (ii) sinh viên mô tả ngắn gọn giải pháp của mình là gì (khi đi theo định hướng/phương pháp nêu trên); và sau cùng, (iii) sinh viên trình bày đóng góp chính của đồ án là gì, kết quả đạt được là gì.
+
+Sinh viên lưu ý không giải thích hoặc phân tích chi tiết công nghệ/thuật toán trong phần này. Sinh viên chỉ cần nêu tên định hướng công nghệ/thuật toán, mô tả ngắn gọn trong một đến hai câu và giải thích nhanh lý do lựa chọn.
+
+\fi
+\section{Thesis organization}
+\label{section:1.4}
+The remainder of this thesis is organized as follows.
+
+Chapter~2 presents the requirement survey and analysis of the proposed
+application. It surveys the practical context of paper-based multiple-choice
+grading, reviews existing grading solutions, summarizes the main functional
+requirements through use case analysis, and describes the business process and
+non-functional requirements of the application.
+
+Chapter~3 presents the methodology and application design of the proposed web
+application. It describes the overall architecture, the main processing workflow,
+and the design of both the backend recognition pipeline and the frontend grading
+interface, covering answer-sheet image acquisition, document alignment, region
+extraction, student ID and name recognition, exam-code recognition, answer
+detection, grading, review, and submission management.
+
+Chapter~4 presents the implementation of the application and its practical evaluation.
+It describes the main modules developed in the web application and backend
+pipeline, and evaluates the application through answer-sheet processing results,
+OCR/OMR outputs, grading performance, and the usability of the review workflow
+under realistic usage scenarios.
+
+Chapter~5 discusses the contributions and significance of the developed application.
+It summarizes the practical value of integrating OCR, OMR, grading logic, and
+submission management into a single teacher-oriented web application, and
+analyzes how the application addresses the limitations identified in the earlier chapters.
+
+Chapter~6 concludes the thesis by summarizing the achieved results, discussing the
+remaining limitations of the current implementation, and suggesting directions for
+future work, including improvements to recognition robustness, workflow
+flexibility, and possible extension toward a broader multi-teacher grading platform.
+
+\end{document}

@@ -1,0 +1,84 @@
+\documentclass[../Main.tex]{subfiles}
+\begin{document}
+
+\section{Conclusion}
+\label{section:6.1}
+
+This thesis developed a lightweight web-based grading application tailored for
+individual teachers to support the grading of paper-based multiple-choice
+examinations. By integrating a structured OMR pipeline and a two-stage OCR
+pipeline based on YOLO and CRNN, the application can extract student IDs, exam
+codes, selected answers, and Vietnamese handwritten names from camera-captured
+answer-sheet images.
+
+Beyond the core recognition modules, an important contribution of the thesis is
+the design of a human-in-the-loop review architecture. In this workflow, the
+role of OCR and OMR is not to act as a fully autonomous decision-making system,
+but to assist the teacher by providing recognized outputs together with visual
+evidence for verification. This allows the teacher to inspect uncertain fields,
+correct recognition results when necessary, and confirm the final grading result
+before it is stored.
+
+The experimental results show that the proposed application is practically
+feasible for the intended grading scenario. The OMR pipeline achieved strong
+performance on the prepared structured answer-sheet dataset, while the OCR
+pipeline achieved promising results for handwritten student-name recognition.
+Together with the teacher-centered review workflow, these results demonstrate
+that the proposed application can reduce repetitive grading work while still
+preserving reliability and human control in the final grading process.
+
+\section{Future Work}
+\label{section:6.2}
+
+Although the current application is practically useful for the intended
+single-teacher grading scenario, it still leaves several directions for further
+development. These directions arise naturally from the current scope of the
+system, the constraints of the supported answer-sheet format, and the practical
+challenges of OCR/OMR-based grading in real educational environments.
+
+A first direction is to improve system scalability and deployment capability.
+At present, the application is designed as a local single-user tool for one
+teacher. Future work can extend this design into a multi-user platform with
+authentication, role management, and support for multiple teachers or
+school-level usage. This would make the system more suitable for broader
+educational deployment and would also allow performance evaluation under
+heavier and more concurrent workloads.
+
+A second direction is to support more flexible answer-sheet layouts. Instead of
+depending only on predefined region coordinates and a fixed structured layout,
+future work may develop a more dynamic template-based mechanism that allows
+teachers to configure or design different answer-sheet formats while still
+enabling the OMR engine to adapt reliably to them. This would broaden the
+practical applicability of the system beyond the current supported form type,
+which is still limited to the predefined structured layout used in this thesis.
+
+A third direction is to improve recognition and identity matching. This may
+include stronger OCR models for handwritten Vietnamese names, more robust
+post-processing strategies, and more advanced matching methods for uncertain
+student identities. In addition to improving the current YOLO-CRNN pipeline,
+future work may also explore multimodal or vision-language approaches for
+particularly difficult handwritten cases. Such improvements are important
+because recognition quality can still be affected by irregular handwriting,
+connected strokes, diacritics, shadow, blur, and other challenging capture
+conditions, which remain practical limitations of the current implementation.
+
+A fourth direction is to improve the user-side capture workflow. For example, a
+dedicated mobile application could be developed so that teachers can capture,
+upload, and review answer sheets directly on smartphones in a more convenient
+and integrated manner. This is meaningful because the current workflow is still
+centered mainly on the web application and local browser-based interaction.
+
+A fifth direction is to strengthen the evaluation process itself. Although the
+current OCR and OMR evaluations show promising practical results, broader
+testing on larger and more diverse datasets would provide stronger evidence of
+generalizability. Future work can therefore include additional answer-sheet
+images, more varied handwriting styles, and more difficult real-world capture
+conditions in order to validate the robustness of the application more
+thoroughly, since the present evaluation is still constrained by the scale and
+diversity of the available project datasets.
+
+Overall, these directions provide a practical path for extending the current
+single-teacher grading application into a more flexible, robust, and scalable
+educational assessment platform.
+
+\end{document}

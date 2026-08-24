@@ -20,9 +20,9 @@ REGIONS_V2 = {
         "mon":        (545, 80, 435, 65),
         "mssv":       (130, 170, 465, 320),
         "ma_de":      (720, 170, 190, 320),
-        "answer_1":   (72, 500, 260, 475),
-        "answer_2":   (377, 500, 260, 475),
-        "answer_3":   (690, 500, 260, 475),
+        "answer_1":   (72, 500, 280, 490),
+        "answer_2":   (377, 500, 280, 490),
+        "answer_3":   (690, 500, 280, 490),
 }
 
 def refine_box_contour(img, x, y, w, h):
@@ -53,7 +53,7 @@ def refine_box_contour(img, x, y, w, h):
             
     return best_rect
 
-def crop_regions_image(img, layout_version="v1"):
+def crop_regions_image(img, layout_version="v2"):
     """Crop configured regions from an aligned answer sheet image based on layout_version."""
     if img is None:
         return None, {}
@@ -83,7 +83,7 @@ def crop_regions_image(img, layout_version="v1"):
     return result_img, crops
 
 
-def crop_regions(img_path, output_visualized_path, crops_dir, layout_version="v1"):
+def crop_regions(img_path, output_visualized_path, crops_dir, layout_version="v2"):
     img = cv2.imread(img_path)
     result_img, crops = crop_regions_image(img, layout_version=layout_version)
     if result_img is None:

@@ -1,0 +1,40 @@
+\documentclass[../Main.tex]{subfiles}
+\begin{document}
+
+\begin{center}
+    \Large{\textbf{ABSTRACT}}\\
+\end{center}
+\vspace{1cm}
+
+Paper-based multiple-choice testing continued to be a practical assessment
+format in many educational settings because it was inexpensive, familiar, and
+easy to administer in ordinary classrooms. However, the grading stage often
+became a bottleneck, especially when teachers had to process many answer sheets
+or multiple exam codes manually. Although existing grading solutions supported
+parts of this workflow, they did not always fit the lightweight single-teacher
+setting targeted in this thesis. This practical gap motivated the development of
+a teacher-oriented OCR/OMR-based web application that combined answer-sheet
+recognition, teacher review, grading, and submission management for structured
+answer sheets.
+
+To address this problem, this thesis developed an integrated web-based
+application that combined OCR/OMR-based answer-sheet recognition, grading logic,
+teacher review, and submission management within a single workflow. The
+implemented system supported camera capture and local image upload, produced
+reviewable grading results before final storage, and allowed the teacher to
+correct uncertain recognition outputs when necessary. In the recognition
+component, OpenCV-based preprocessing and rule-based OMR were combined with a
+two-stage OCR pipeline using YOLO-based text detection and CRNN-based text
+recognition for Vietnamese student-name recognition. In the conducted evaluation,
+the application achieved 100\% answer recognition accuracy in the prepared OMR
+dataset and 93.33\% exact full-name accuracy in the end-to-end OCR evaluation,
+while the overall workflow demonstrated its ability to support practical
+teacher-controlled grading of structured answer sheets.
+
+\begin{flushright}
+\begin{tabular}{@{}c@{}}
+Student\\
+\textit{(Signature and full name)}
+\end{tabular}
+\end{flushright}
+\end{document}

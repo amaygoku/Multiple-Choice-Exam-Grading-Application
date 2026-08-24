@@ -1,0 +1,1229 @@
+\documentclass[../Main.tex]{subfiles}
+\begin{document}
+
+Chapter~3 presented the technologies used in the proposed grading application,
+including document image processing, OMR, OCR, backend technologies, database
+technologies, and frontend technologies. Based on
+that foundation, this chapter presents the design, implementation, and practical
+evaluation of the application. It first describes the overall architecture and
+workflow design, then explains the implementation of the core processing modules
+and supporting application components, and finally evaluates the application
+under practical grading conditions.
+
+\section{System Architecture and Workflow Design}
+\label{section:4.1}
+
+The proposed grading application is designed as a lightweight web-based
+client-server application for a single teacher. At a high level, the architecture
+consists of the frontend application, the backend API layer, the recognition
+pipeline, and the database and storage layer. These parts work together to
+support the grading workflow, from answer-sheet acquisition and processing to
+review, submission storage, and result inspection. This section first presents
+the overall application architecture, then describes the OMR and OCR workflows
+that form the core recognition components of the application, and finally
+describes the database design that supports persistent academic and grading
+data management.
+
+\subsection{Overall Application Architecture}
+\label{subsection:4.1.1}
+
+Figure~\ref{fig:overall_architecture} presents the overall architecture of the
+proposed grading application. At a high level, the application is organized
+around the flow from input data to output data. The main architectural blocks
+are the frontend web application, the backend API layer, the recognition
+pipeline, the database, and the review image storage. These blocks work
+together to transform an answer-sheet image into a reviewable recognition and
+grading result.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Figure/overview_architect.png}
+    \caption{Overall architecture of the proposed grading application}
+    \label{fig:overall_architecture}
+\end{figure}
+
+The input of the architecture is an answer-sheet image provided through the
+frontend web application. The frontend is the teacher-facing part of the
+system, through which the teacher selects the grading context, captures or
+uploads answer-sheet images, reviews processing results, and inspects saved
+submissions and analytics. The output of the architecture is a reviewable
+recognition and grading result presented back through the same interface.
+
+The backend API layer coordinates the application workflow. It receives
+requests from the frontend, invokes the recognition pipeline, stores or queries
+academic and grading records in the database, saves review artifacts in the
+image-storage layer, and returns the recognition result together with the
+corresponding artifact URLs to the frontend.
+
+Within this overall architecture, the recognition pipeline is the core
+processing block. In the current design, it is divided into two main
+recognition components: OMR for structured mark-based regions and OCR for the
+student-name text region. These components operate under backend control and
+produce the recognition outputs required for grading and teacher review. The
+database stores structured academic and submission records, while the review
+image storage preserves visual artifacts such as aligned sheets, cropped
+regions, and OMR/OCR evidence images.
+
+This architecture is suitable for the scope of the proposed application because
+it separates interface, processing, and persistence while remaining lightweight
+enough for single-teacher use. The two main recognition workflows inside this
+architecture, namely OMR and OCR, are described in the following subsections.
+
+\subsection{OMR Pipeline Workflow}
+\label{subsection:4.1.2}
+
+The OMR pipeline is responsible for extracting structured mark-based information
+from the answer sheet. In the proposed grading application, OMR is used for
+three main tasks: recognizing the student ID grid, recognizing the exam-code
+grid, and detecting the selected answers in the multiple-choice answer blocks.
+These tasks are suitable for OMR because their input regions follow predefined
+layouts and their values are represented by filled cells rather than free-form
+text. Figure~\ref{fig:omr_pipeline} illustrates the OMR pipeline workflow used
+in the application.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Figure/omr_pipeline_workflow.png}
+    \caption{OMR pipeline workflow of the grading application}
+    \label{fig:omr_pipeline}
+\end{figure}
+
+The OMR workflow starts after the backend receives and decodes the uploaded
+answer-sheet image. The application first detects the sheet boundary and applies
+perspective transformation to align the answer sheet into a normalized top-down
+view. From the aligned sheet, predefined functional regions are cropped
+according to the supported answer-sheet layout. These regions include the
+student ID grid, the exam-code grid, and answer blocks. In the current
+implementation, the supported layout contains three predefined answer blocks,
+each covering a fixed group of questions. This layout-based cropping step is
+important because the subsequent OMR logic assumes that each cropped region has
+a stable internal structure.
+
+For the student ID and exam-code regions, the application processes each region
+as a digit grid. The student ID grid contains eight digit columns, while the
+exam-code grid contains three digit columns. Each column corresponds to one
+digit position, and each row corresponds to a possible digit from 0 to 9. The
+cropped grid is normalized, binarized, and divided into cells. In this stage,
+adaptive thresholding is used to support local grid normalization, while
+Otsu-based binarization is applied after lighting normalization. The application
+then measures cell-level fill ratios and pixel-density-based mark scores, and
+selects the most likely digit for each column based on configured thresholds. If
+the evidence is not sufficiently clear, the result may contain an uncertain or
+empty value, which can later be inspected and corrected by the teacher on the
+review screen.
+
+For the answer regions, the application processes the predefined answer blocks.
+Each block is normalized and converted into a binary representation so that
+filled answer marks can be separated from the background. This preprocessing
+uses lighting normalization, thresholding, and local perspective correction when
+needed. The block is then divided into question rows and answer-choice cells.
+For each question row, the application evaluates the pixel density and mark
+score of the available choices and produces the detected answer. The current
+layout supports four answer choices, corresponding to A, B, C, and D. The
+detected answers from all answer blocks are combined into a single answer list
+for the submission being processed.
+
+After the OMR outputs are obtained, the application can calculate an initial
+grading result if an answer key is provided in the processing request. This
+score is only an initial result because the teacher still needs to review the
+recognized student ID, exam code, and answers before saving the final
+submission. The pipeline also produces visual review outputs, such as aligned
+images, cropped regions, and OMR result images, so that the teacher can verify
+how the application interpreted the answer sheet.
+
+Therefore, the role of the OMR pipeline in the application is not limited to
+automatic answer detection. It also provides structured recognition results and
+reviewable visual evidence for the teacher-facing grading workflow. This design
+supports the goal of the proposed application: reducing repetitive manual
+grading work while still allowing recognition results to be reviewed and
+corrected before storage.
+
+\subsection{OCR Pipeline Workflow}
+\label{subsection:4.1.3}
+
+While OMR is suitable for structured mark regions, the student-name field
+requires OCR because it contains textual information with variable length and
+spacing. In the proposed grading application, OCR is used specifically for
+recognizing the student name from the cropped name region of the answer sheet.
+This separation allows the application to process structured fields such as
+student ID, exam code, and answers using OMR, while applying a text-recognition
+pipeline only to the region where free-form text is expected. Figure~\ref{fig:ocr_pipeline} illustrates the OCR pipeline workflow used for
+student-name recognition.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Figure/ocr_pipeline.png}
+    \caption{OCR pipeline workflow for student-name recognition}
+    \label{fig:ocr_pipeline}
+\end{figure}
+
+The OCR workflow starts from the cropped student-name region produced by the
+region extraction stage. Before OCR inference is performed, the application uses
+a refined version of the name crop when it is available. In the current
+implementation, the pipeline first attempts to use the refined name crop and
+falls back to the original name crop if the refined crop is not available. This
+design allows the OCR module to benefit from crop-level preprocessing while
+still remaining functional when refinement cannot be applied.
+
+The OCR module follows a two-stage recognition workflow. First, a YOLO-based
+text detector is used to locate text regions inside the cropped name image. This
+stage is needed because a student name may contain multiple words and the
+positions of those words may vary across different answer sheets. After text
+regions are detected, the corresponding word images are passed to a CRNN-based
+sequence recognizer. The recognizer predicts character sequences from the word
+images without requiring explicit character-by-character segmentation.
+
+The detected word-level recognition results are then combined into the
+student-name text returned by the OCR module. In the backend pipeline, this OCR
+result is stored in the \texttt{student\_info} output together with the student
+ID and exam code recognized by OMR. When class context is available, the backend
+can also use the detected student ID to preview a matched student name from the
+class list. The combined information is then returned to the frontend review
+screen, where the teacher can inspect and edit the displayed name before saving
+the final submission.
+
+The OCR pipeline is intentionally limited to student-name recognition in the
+current scope of the application. Student ID and exam code are not processed as
+general text because they are represented by structured mark grids, making OMR a
+more controllable choice for those fields. This division of responsibility keeps
+the recognition workflow aligned with the structure of the answer sheet: OMR is
+used for grid-based and choice-based regions, while OCR is used only for the
+textual name field.
+
+\subsection{Database Design}
+\label{subsection:4.1.4}
+
+Besides the recognition workflow, the proposed application also requires a
+database structure that can store academic configuration and saved grading
+results in a consistent and queryable form. Figure~\ref{fig:database_erd}
+illustrates the entity-relationship design of the application database. At a
+high level, the schema organizes the main entities involved in the teacher's
+workflow, including classes, students, examinations, exam codes, and
+submissions. This design allows the recognition and grading pipeline to be
+linked directly with the academic context selected by the teacher, while also
+supporting later review, filtering, and analytics on stored results.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Figure/ERD_diagram.png}
+    \caption{Entity-relationship design of the application database}
+    \label{fig:database_erd}
+\end{figure}
+
+
+
+Before examining the ERD itself, it is useful to summarize the main
+relationships among the core entities. Table~\ref{table:database_relationships}
+describes the principal links that define the academic and grading structure of
+the application.
+
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+\begin{table}[H]
+\centering
+\caption{Main relationships among the core entities}
+\label{table:database_relationships}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+
+\begin{tabular}{|
+C{0.14\textwidth}|
+C{0.13\textwidth}|
+C{0.12\textwidth}|
+C{0.09\textwidth}|
+p{0.34\textwidth}|}
+\hline
+\textbf{Entity} &
+\textbf{Related entity} &
+\textbf{Relation} &
+\textbf{Card.} &
+\textbf{Description} \\
+\hline
+
+Class &
+Student &
+contains &
+1:N &
+One class contains multiple students, and each student belongs to one class. \\
+\hline
+
+Class &
+Examination &
+has &
+1:N &
+One class can have multiple examinations. \\
+\hline
+
+Examination &
+Exam Code &
+has &
+1:N &
+One examination can contain multiple exam-code versions. \\
+\hline
+
+Class &
+Submission &
+groups &
+1:N &
+Each saved submission belongs to one selected class. \\
+\hline
+
+Examination &
+Submission &
+organizes &
+1:N &
+Each saved submission is associated with one examination context. \\
+\hline
+
+Student &
+Submission &
+matches &
+1:N &
+One student can be linked to multiple submissions, while some submissions may remain unmatched. \\
+\hline
+
+Exam Code &
+Submission &
+grades &
+1:N &
+One exam code can be associated with many submissions using the same answer-key version. \\
+\hline
+
+\end{tabular}
+\end{table}
+
+A class contains a list of students and can have multiple examinations. Each
+examination may contain one or more exam codes, and each exam code stores its
+own answer key. A submission represents one processed answer sheet that has
+been reviewed and saved by the teacher. Table~\ref{table:database_entities}
+summarizes the main purpose of the core entities in this database design.
+
+\begin{table}[H]
+\centering
+\caption{Main entities in the database design}
+\label{table:database_entities}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|p{0.13\textwidth}|p{0.22\textwidth}|p{0.42\textwidth}|}
+\hline
+\textbf{Entity} & \textbf{Main role} & \textbf{Main stored information} \\ \hline
+Class & Stores the teaching group selected during grading & Class name, class identifier, related students, related examinations \\ \hline
+Student & Stores the official class roster & Student ID, full name, class reference \\ \hline
+Examination & Stores the main test configuration for a class & Exam name, class reference, related exam codes \\ \hline
+Exam code & Stores each answer-key version of an examination & Exam-code value, answer key, examination reference \\ \hline
+Submission & Stores one saved grading record & Detected student information, detected exam code, answers, score, status, review-image URLs, grading details \\ \hline
+\end{tabular}
+\end{table}
+
+The submission entity is the central record produced after the teacher confirms
+the review result. Each submission is linked to a class and an exam. If the
+recognized student ID matches a student in the selected class, the submission
+is also linked to that student. If the detected exam code matches an existing
+exam code, the submission is linked to that exam code as well. Besides these
+references, the submission stores recognition outputs and grading outputs that
+must remain available for later inspection. Because the submission table is the
+central persistent record of the grading workflow, its main fields should be
+described explicitly. Table~\ref{table:submission_fields} presents the main
+submission fields related to academic references, detected values, and grading
+results according to the current backend data model. Table~\ref{table:submission_fields_artifacts}
+then summarizes the stored review artifacts and metadata.
+
+\begin{table}[H]
+\centering
+\caption{Core academic and grading fields stored in the submission table}
+\label{table:submission_fields}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|>{\raggedright\arraybackslash}p{0.20\textwidth}|>{\raggedright\arraybackslash}p{0.16\textwidth}|>{\raggedright\arraybackslash}p{0.34\textwidth}|}
+\hline
+\textbf{Field name} & \textbf{Data type} & \textbf{Meaning} \\ \hline
+id & Integer & Primary key of the submission record. \\ \hline
+class\_id & Integer & Foreign key referencing the selected class. \\ \hline
+exam\_id & Integer & Foreign key referencing the selected examination. \\ \hline
+exam\_code\_id & Integer / nullable & Foreign key referencing the matched exam-code record when available. \\ \hline
+student\_id & Integer / nullable & Foreign key referencing the matched student record when available. \\ \hline
+detected\_mssv & String(64) & Student ID detected from the answer sheet. \\ \hline
+detected\_name & String(255) & Student name detected or retained for the submission. \\ \hline
+detected\_exam\_code & String(64) & Exam code detected from the answer sheet. \\ \hline
+answers & JSON & Stored list of detected answers for the submission. \\ \hline
+score & Float & Final score stored for the reviewed submission. \\ \hline
+correct\_count & Float & Number of correctly answered questions. \\ \hline
+total\_questions & Integer & Total number of evaluated questions in the submission. \\ \hline
+status & String(32) & Submission status such as matched, unmatched, or another review-related state. \\ \hline
+manual\_override & Boolean & Indicates whether the reviewed result was manually corrected before final storage. \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Review-artifact and metadata fields stored in the submission table}
+\label{table:submission_fields_artifacts}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|>{\raggedright\arraybackslash}p{0.20\textwidth}|>{\raggedright\arraybackslash}p{0.16\textwidth}|>{\raggedright\arraybackslash}p{0.34\textwidth}|}
+\hline
+\textbf{Field name} & \textbf{Data type} & \textbf{Meaning} \\ \hline
+source\_image\_\newline url & Text / nullable & Stored URL of the original submitted answer-sheet image. \\ \hline
+aligned\_image\_\newline url & Text / nullable & Stored URL of the aligned answer-sheet image after perspective correction. \\ \hline
+result\_image\_\newline url & Text / nullable & Stored URL of the final review-result image or visualization. \\ \hline
+student\_info & JSON / nullable & Structured student-information output returned by the recognition pipeline. \\ \hline
+grading & JSON / nullable & Detailed grading result, including summary values and question-level information. \\ \hline
+crops & JSON / nullable & Stored references to cropped functional regions of the answer sheet. \\ \hline
+omr\_images & JSON / nullable & Stored references to OMR-related debug or review images. \\ \hline
+preprocess\_\newline images & JSON / nullable & Stored references to preprocessing outputs used in the review workflow. \\ \hline
+scanned\_at & DateTime & Time at which the submission was processed or scanned. \\ \hline
+created\_at & DateTime & Time at which the submission record was created. \\ \hline
+updated\_at & DateTime & Time at which the submission record was last updated. \\ \hline
+\end{tabular}
+\end{table}
+
+The application uses submission status values to distinguish different cases. A
+matched submission is one that can be linked to a student in the selected
+class. An unmatched submission is saved when the answer sheet has been
+processed but the detected student ID cannot be matched to the class roster.
+This design is important because it prevents uncertain results from being
+merged automatically into the official class list.
+
+When exporting or viewing results for a selected class and examination, the
+class roster should be treated as the main list. Matched submissions can be
+joined to students through the stored student reference. Students without a
+saved submission can be shown as not submitted. Unmatched submissions should
+remain separate for teacher review rather than being assigned automatically to
+any student. This database design therefore supports both persistent storage and
+safe result management in the teacher-oriented grading workflow.
+
+\subsection{User Interface Design}
+\label{subsection:4.1.5}
+
+Besides backend processing and data design, the proposed application also
+requires a coherent user-interface structure that reflects the practical
+workflow of one teacher. At the design level, the interface is organized around
+six main screen groups: a dashboard overview, class and examination
+management, answer-sheet scanning, recognition review, result management, and
+analytics. Rather than presenting these screens first as implementation
+screenshots, this subsection describes the user-interface design through
+low-fidelity wireframe-style layouts so that the arrangement of content and
+interaction priorities can be explained more clearly.
+
+The first design group covers high-level overview and academic-data
+preparation. The dashboard layout summarizes the overall teaching workspace
+through navigation, summary cards, active classes, and recent saved
+submissions. The class-and-exam workspace concentrates class selection, class
+information, student-roster management, exam selection, and answer-key editing
+in one screen. Together, these two interface designs represent the preparation
+and entry stage of the system. Figure~\ref{fig:ui_wireframes_a} illustrates
+these design-level layouts.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.72\textwidth]{Figure/ui_wireframe_dashboard.png}
+
+    \vspace{0.5cm}
+
+    \includegraphics[width=0.72\textwidth]{Figure/ui_wireframe_workspace.png}
+    \caption{User-interface design layouts for the dashboard and the class-and-exam workspace}
+    \label{fig:ui_wireframes_a}
+\end{figure}
+
+The second design group covers answer-sheet acquisition and recognition
+review. The scanner layout represents the mobile-first capture screen, in
+which the teacher selects the class, examination, and exam code, previews the
+camera image, and starts scanning. The review layout is designed as a
+three-column desktop layout. The left column concentrates OCR and
+identity-related information together with OMR evidence, the center column
+shows the aligned scan and detected regions, and the right column presents the
+editable answer list and final save action. Figure~\ref{fig:ui_wireframes_b}
+illustrates these two interface designs.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.72\textwidth]{Figure/ui_wireframe_scanner.png}
+
+    \vspace{0.5cm}
+
+    \includegraphics[width=0.72\textwidth]{Figure/ui_wireframe_review.png}
+    \caption{User-interface design layouts for the scanner screen and the review screen}
+    \label{fig:ui_wireframes_b}
+\end{figure}
+
+The third design group covers post-recognition management and later
+inspection. The result-management layout focuses on filters, selected
+submission summary, and the editable submission queue used in review history.
+The analytics layout focuses on hierarchical filters, summary metrics, score
+distribution, and grade-band analysis so that saved grading outcomes can be
+interpreted beyond individual answer sheets. Figure~\ref{fig:ui_wireframes_c}
+illustrates these interface designs.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.72\textwidth]{Figure/ui_wireframe_result_management.png}
+
+    \vspace{0.5cm}
+
+    \includegraphics[width=0.72\textwidth]{Figure/ui_wireframe_analytics.png}
+    \caption{User-interface design layouts for the result-management screen and the analytics screen}
+    \label{fig:ui_wireframes_c}
+\end{figure}
+
+Together, these layouts show that the interface design is driven by the
+teacher's actual workflow rather than by isolated technical modules. Overview
+and preparation screens appear before scanning, scanning is optimized for
+camera-based input, review is centered on visual verification and correction,
+and result management and analytics are separated into later inspection stages.
+This design-level structure provides the basis for the implemented user
+interface described in the following implementation section.
+
+\section{Detailed Implementation}
+\label{section:4.2}
+
+After presenting the architecture and workflow design, this section describes
+the implementation of the main components of the grading application. The
+discussion focuses on how the OMR module, OCR module, and user
+interface are implemented to support the workflow described in Section
+\ref{section:4.1}. In addition, the section shows how the main technologies
+introduced in Chapter~3, including OpenCV, rule-based OMR, YOLO, CRNN,
+FastAPI, SQLAlchemy, SQLite, and the React-based frontend, are applied in the
+actual implementation. While Section~\ref{section:4.1} presents the processing
+flow at a design level, this section explains the concrete implementation
+choices used in the application.
+
+\subsection{OMR Implementation}
+\label{subsection:4.2.1}
+
+The OMR implementation is organized around the backend service
+\texttt{run\_exam\_pipeline}, which coordinates answer-sheet alignment, region
+cropping, digit-grid analysis, answer detection, and optional grading within a
+single processing request. Rather than implementing OMR as one monolithic
+function, the application separates the processing into reusable helpers for
+sheet alignment, student-ID and exam-code analysis, answer-block processing, and
+artifact generation. This structure makes the backend easier to maintain and
+keeps the OMR results in a form that can be returned directly to the review
+interface. In terms of technology, this implementation mainly applies the
+OpenCV-based preprocessing and rule-based OMR approach introduced in
+Section~\ref{section:3.4}.
+
+For student ID and exam-code recognition, the implementation uses a dedicated
+grid-analysis helper. In the current code, the grid region is normalized first,
+then analyzed column by column so that each column produces one predicted digit.
+The implementation stores not only the predicted value, but also intermediate
+statistics used for decision making, such as cell-level counts, fill ratios, and
+derived mark scores. The same stage also generates debug grid visualizations,
+which are later exposed to the frontend as part of the review material. This is
+an important implementation detail because the review screen does not display
+only raw crops; it displays OMR-oriented visual outputs that reflect how the
+digit-grid analysis interpreted the marked cells.
+
+For answer detection, the implementation uses a separate OMR configuration
+object that controls normalization size, padding, thresholding behavior,
+alignment parameters, and score thresholds. The code maintains different
+configuration profiles for the supported layouts, including a dedicated
+configuration for the current \texttt{v2} answer-sheet format. After
+normalization, the answer area is divided into rows and answer-choice cells, and
+the implementation computes choice scores from both row-level and column-level
+evidence. This scoring design is important because it reduces sensitivity to
+local printing artifacts and uneven mark intensity without requiring a learned
+end-to-end answer recognizer.
+
+Another implementation detail is the handling of review artifacts. The OMR
+module can optionally save aligned images, cropped regions, OMR result images,
+and preprocessing outputs through an artifact-storage layer. In normal backend
+mode, these images are generated only when debugging or review storage is
+enabled; otherwise, the recognition result can still be returned without writing
+files unnecessarily. This design keeps the OMR implementation consistent with
+the reviewable nature of the application while avoiding mandatory storage
+overhead in every processing request.
+
+Figure~\ref{fig:omr_impl_result} shows an example of the OMR visualization
+generated for an answer block in the current implementation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.34\textwidth]{Figure/omr_answer_result.png}
+    \caption{Example of answer-block OMR visualization produced by the implementation}
+    \label{fig:omr_impl_result}
+\end{figure}
+
+\subsection{OCR Implementation}
+\label{subsection:4.2.2}
+
+The OCR implementation is encapsulated in a separate backend wrapper so that the
+main grading pipeline can call student-name recognition through a simple
+function interface. In the current code, the wrapper is responsible for loading
+the YOLO and CRNN models, building the OCR runtime lazily, selecting the
+available device, and executing inference on the cropped name image. This design
+keeps the deep-learning dependency isolated from the rest of the backend and
+avoids repeated model initialization during successive grading requests.
+This implementation directly reflects the OCR block described in
+Section~\ref{section:3.5}, where YOLO is used for text detection, CRNN is used
+for sequence recognition, and PyTorch provides the model runtime.
+
+At the implementation level, the OCR module first uses the refined
+student-name crop when it is available and falls back to the original
+student-name crop otherwise. The recognized text is then inserted into the
+student-information output returned by the processing endpoint. This means that
+OCR is not implemented as a standalone output file or side channel; it is
+integrated directly into the same response object that also contains the
+OMR-based student ID, exam code, answer list, and grading result.
+
+An important implementation detail is that the backend does not treat OCR as the
+only authority for student identity. After the OCR result is produced, the API
+layer can compare the detected student ID with the selected class roster and use
+database information to resolve a more reliable preview name when the roster and
+OCR output are sufficiently consistent. This name-resolution step is implemented
+separately from the OCR model itself, which allows recognition and academic-data
+matching to remain conceptually distinct inside the backend.
+
+The OCR implementation also includes explicit fallback behavior. If the OCR
+runtime cannot be initialized, the backend returns a placeholder OCR result
+instead of aborting the entire request. Likewise, OCR inference errors are
+captured so that answer-sheet processing can continue and the teacher can still
+review or correct the submission manually. This behavior is consistent with the
+application design: OCR is implemented as a supportive recognition component in
+a teacher-controlled workflow rather than as an infallible final decision
+mechanism.
+
+Figure~\ref{fig:ocr_impl_detection} illustrates this implementation strategy on
+an actual student-name crop. The first image shows the word-level text boxes
+detected by YOLO, and the second image shows the corresponding cropped word
+images that are passed to the CRNN recognizer.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.95\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure/ocr_yolo_detection.png}
+    \end{minipage}
+
+    \vspace{0.4cm}
+
+    \begin{minipage}{0.72\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure/ocr_word_crops_sheet.png}
+    \end{minipage}
+    \caption{YOLO-based word detection and extracted word crops used by the OCR implementation}
+    \label{fig:ocr_impl_detection}
+\end{figure}
+
+\subsection{User Interface Implementation}
+\label{subsection:4.2.3}
+
+The frontend is implemented as a React-based web application with TypeScript
+for a single teacher. It provides
+screens for managing academic data, scanning answer sheets, reviewing
+recognition results, saving submissions, and viewing grading results. The
+interface is built around the teacher's grading workflow rather than around
+isolated technical modules.
+
+Before grading, the teacher manages classes, student lists, examinations, exam
+codes, and answer keys. These data provide the context required during scanning
+and grading. When starting a scan, the teacher selects a class and an
+examination, then captures an answer sheet using the camera or uploads an image
+from the local device. The frontend sends the image and selected exam context to
+the backend processing endpoint. Figure~\ref{fig:ui_scanner} presents both the
+main scanning interface and the temporary processing state shown while the
+application is preparing the OCR/OMR review result.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.46\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure/ui_scanner_1.jpg}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.46\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure/ui_scanner_2.jpg}
+    \end{minipage}
+    \caption{Answer-sheet scanning interface and intermediate processing state}
+    \label{fig:ui_scanner}
+\end{figure}
+
+After the backend returns the OCR/OMR result, the frontend displays a review
+screen, as shown in Figure~\ref{fig:ui_review}. This screen shows the recognized
+student ID, student name, exam code, detected answers, initial score, and review
+images. The teacher can correct the recognized fields and selected answers
+before saving. The frontend recalculates the score according to the selected
+exam code and answer key so that the teacher can immediately see the effect of
+corrections. Figure~\ref{fig:ui_review} shows the overall review layout, while
+Figure~\ref{fig:ui_review_details_a} illustrates more detailed views of the
+same workflow.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Figure/ui_reveiw_5.png}
+    \caption{Overall recognition result review interface}
+    \label{fig:ui_review}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.25\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure/ui_review_1.jpg}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.25\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure/ui_review_2.jpg}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.25\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure/ui_review_3.jpg}
+    \end{minipage}
+
+    \vspace{0.5em}
+
+    \begin{minipage}[t]{0.25\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure/ui_review_4.jpg}
+    \end{minipage}
+    \caption{Detailed review views: student information, exam-code and OMR evidence, scan-result visualization, and editable OMR answer list}
+    \label{fig:ui_review_details_a}
+\end{figure}
+
+When the teacher confirms the result, the frontend sends the reviewed submission
+payload to the backend. The saved submission then appears in the review and
+result-management screens. The interface also supports filtering submissions by
+class, exam, exam code, and status, which helps the teacher identify matched,
+unmatched, or edited records. Figure~\ref{fig:ui_results}
+illustrates the result-management interface.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Figure/ui_results.png}
+    \caption{Saved submission and result-management interface}
+    \label{fig:ui_results}
+\end{figure}
+
+These functions make the application usable not only for automatic grading, but
+also for managing and correcting grading results after recognition.
+
+\section{Experiment and Evaluation}
+\label{section:4.3}
+
+After describing the design and implementation of the grading application, this
+section evaluates the main recognition and grading capabilities of the
+application. The evaluation focuses on the components that directly affect the
+correctness of grading results: OMR-based student ID and answer recognition,
+OCR-based student-name recognition, and the end-to-end grading workflow. The
+experiments are conducted on prepared answer-sheet images and cropped
+student-name images collected during development. The purpose of this evaluation
+is not to claim general performance under all possible conditions, but to
+measure how well the implemented application performs on the supported
+answer-sheet layout and practical image data used in this thesis.
+
+\subsection{OMR Evaluation}
+\label{subsection:4.3.1}
+
+The OMR evaluation measures the ability of the application to recognize
+student IDs and selected answers from structured answer sheets. The evaluation
+dataset contains 85 answer-sheet images collected from two folders. The first
+folder contains 30 images, while the second folder contains 55 images. The
+ground truth includes the expected student ID and the expected selected answers
+for each sheet. Since each sheet contains 45 questions, the evaluation covers a
+total of 3,825 answer values.
+
+Table~\ref{table:omr_evaluation_summary} summarizes the OMR evaluation results.
+The application correctly recognized all student IDs in the evaluation set. It
+also correctly recognized all evaluated answers, resulting in an answer
+accuracy of 100\% on this prepared dataset. In addition, every sheet achieved an
+exact sheet-level match, meaning that all answers on the sheet were recognized
+correctly at the same time.
+
+\begin{table}[H]
+\centering
+\caption{OMR evaluation summary on the prepared answer-sheet dataset}
+\label{table:omr_evaluation_summary}
+\begin{tabular}{lrr}
+\hline
+\textbf{Metric} & \textbf{Value} & \textbf{Accuracy} \\ \hline
+Number of evaluated sheets & 85 & -- \\
+Correct student IDs & 85 / 85 & 100.00\% \\
+Correct answers & 3825 / 3825 & 100.00\% \\
+Exact sheet matches & 85 / 85 & 100.00\% \\
+Failed sheets & 0 & -- \\ \hline
+\end{tabular}
+\end{table}
+
+Table~\ref{table:omr_evaluation_by_folder} presents the same results separated
+by source folder. Both subsets achieved full student ID accuracy, answer
+accuracy, and exact sheet-level matching. These results show that the rule-based
+OMR pipeline is reliable for the structured answer-sheet layout and image
+conditions represented in the evaluation data.
+
+\begin{table}[H]
+\centering
+\caption{OMR evaluation results by dataset subset}
+\label{table:omr_evaluation_by_folder}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|>{\raggedright\arraybackslash}p{0.18\textwidth}|>{\centering\arraybackslash}p{0.10\textwidth}|>{\centering\arraybackslash}p{0.18\textwidth}|>{\centering\arraybackslash}p{0.18\textwidth}|>{\centering\arraybackslash}p{0.18\textwidth}|}
+\hline
+\textbf{Dataset} & \textbf{Sheets} & \textbf{\shortstack{Student ID\\Accuracy}} & \textbf{\shortstack{Answer\\Accuracy}} & \textbf{\shortstack{Exact sheet\\match}} \\ \hline
+Evaluation data & 30 & 100.00\% & 100.00\% & 100.00\% \\
+Data test & 55 & 100.00\% & 100.00\% & 100.00\% \\ \hline
+\end{tabular}
+\end{table}
+
+Although the OMR result is high, it should be interpreted within the scope of
+the prepared dataset. The answer sheets follow the supported layout, and the
+image quality is suitable for the implemented preprocessing and alignment
+pipeline. Therefore, the result demonstrates the effectiveness of the current
+OMR implementation for the target use case, while further testing would still
+be necessary for more diverse layouts, stronger camera distortion, severe blur,
+or heavily damaged answer sheets. In terms of the objectives stated in
+Section~\ref{section:1.2}, these results provide practical evidence that the
+first objective, concerning answer-sheet image preparation, and the second
+objective, concerning recognition of structured grading information, have been
+addressed for the supported form layout.
+
+\subsection{OCR Evaluation}
+\label{subsection:4.3.2}
+
+The OCR evaluation focuses on the recognition pipeline used for student-name
+processing. In the proposed application, OCR is implemented as a two-stage
+pipeline consisting of text detection and text recognition. The text detection
+stage is responsible for locating word-level text regions inside the cropped
+student-name area, while the text recognition stage predicts the corresponding
+character sequences from the detected word images. In addition to evaluating
+these two components separately, this thesis also evaluates the overall OCR
+pipeline on practical cropped student-name images.
+
+The first part of the evaluation concerns the YOLO-based text detection model.
+This model is used to identify word-level text regions before recognition is
+performed by the CRNN model. Table~\ref{table:yolo_detection_results}
+summarizes the detection results. The model achieves a precision of 99.74\%, a
+recall of 99.86\%, an mAP@0.5 of 99.50\%, and an mAP@0.5:0.95 of 95.71\%.
+These values indicate that the detector can localize text regions with very high
+reliability. The high precision shows that false positive detections are rare,
+while the high recall shows that very few true text regions are missed. The
+strong mAP values also confirm that the predicted bounding boxes align well
+with the ground-truth text regions across different intersection-over-union
+thresholds.
+
+\begin{table}[H]
+\centering
+\caption{Performance of the YOLO-based text detection model}
+\label{table:yolo_detection_results}
+\begin{tabular}{lc}
+\hline
+\textbf{Metric} & \textbf{Value} \\ \hline
+Precision & 99.74\% \\
+Recall & 99.86\% \\
+mAP@0.5 & 99.50\% \\
+mAP@0.5:0.95 & 95.71\% \\ \hline
+\end{tabular}
+\end{table}
+
+The second part of the evaluation examines the CRNN-based text recognition
+model. This model is evaluated on 377 text samples, and the results are
+summarized in Table~\ref{table:crnn_recognition_results}. The model achieves an
+exact-match accuracy of 98.67\%, with the same value for normalized exact-match
+accuracy. In addition, the mean character error rate is 0.3139\% and the mean
+word error rate is 1.3263\%. These results indicate that the recognizer can
+predict student-name text with high accuracy once the relevant word images have
+been extracted correctly. The low character and word error rates further suggest
+that recognition mistakes are infrequent and usually limited in severity.
+
+\begin{table}[H]
+\centering
+\caption{Performance of the CRNN-based text recognition model}
+\label{table:crnn_recognition_results}
+\begin{tabular}{lc}
+\hline
+\textbf{Metric} & \textbf{Value} \\ \hline
+Number of samples & 377 \\
+Exact-match accuracy & 98.67\% \\
+Normalized exact-match accuracy & 98.67\% \\
+Mean CER & 0.3139\% \\
+Mean WER & 1.3263\% \\ \hline
+\end{tabular}
+\end{table}
+
+Besides evaluating the detection and recognition stages separately, the thesis
+also evaluates the complete OCR pipeline on practical cropped student-name
+images. In this evaluation, the OCR pipeline is tested without lexicon-based
+post-correction, since earlier comparison experiments showed that disabling the
+lexicon gives better overall accuracy for the current dataset. The results of
+the complete pipeline are summarized in Table~\ref{table:ocr_pipeline_results}. On 330 evaluated images, the pipeline
+achieves an exact-match accuracy of 93.33\%, a normalized exact-match accuracy
+of 97.58\%, a mean character error rate of 0.74\%, and a mean word error rate
+of 1.99\%.
+
+\begin{table}[H]
+\centering
+\caption{Performance of the end-to-end OCR pipeline}
+\label{table:ocr_pipeline_results}
+\begin{tabular}{lc}
+\hline
+\textbf{Metric} & \textbf{Value} \\ \hline
+Number of evaluated images & 330 \\
+Exact-match accuracy & 93.33\% \\
+Normalized exact-match accuracy & 97.58\% \\
+Mean CER & 0.74\% \\
+Mean WER & 1.99\% \\ \hline
+\end{tabular}
+\end{table}
+
+A comparison between the component-level results and the end-to-end pipeline
+results is meaningful. The CRNN recognizer alone achieves higher accuracy than
+the complete OCR pipeline, which is expected because the end-to-end pipeline is
+affected not only by recognition quality but also by text detection, word
+ordering, crop quality, and image variation in practical inputs. In other words,
+the final OCR result depends on the combined performance of both the YOLO and
+CRNN stages, together with the quality of the cropped student-name region
+generated earlier in the processing pipeline.
+
+Overall, the OCR evaluation shows that the proposed OCR module performs reliably
+for the role required in this thesis. The YOLO detector can localize student-name
+text regions accurately, the CRNN recognizer can read cropped text images with
+high accuracy, and the complete OCR pipeline produces strong practical results
+on real cropped name images. These findings support the use of the proposed OCR
+pipeline as a teacher-assistance component in the grading application, while
+still allowing the teacher to review and correct uncertain outputs when
+necessary. In terms of Section~\ref{section:1.2}, this evaluation mainly
+confirms that the second objective, namely the recognition of essential
+grading information including student-name text, has been achieved within the
+intended grading workflow.
+
+\subsection{End-to-End Grading Workflow Evaluation}
+\label{subsection:4.3.3}
+
+This subsection evaluates the behavior of the complete grading workflow after
+the OCR, OMR, grading, review, and storage components are integrated into one
+application. Unlike the previous OCR and OMR evaluations, which focus on
+component-level recognition accuracy, the objective here is to verify whether
+the full application behaves correctly in the main practical situations that
+occur during grading. Therefore, this evaluation is scenario-based: each tested
+scenario is checked against the expected workflow outcome rather than only
+against isolated recognition metrics.
+
+In the implemented application, the end-to-end workflow begins when the teacher
+selects a class and an examination, captures or uploads an answer-sheet image,
+receives the OCR/OMR processing result from the backend, reviews the detected
+information, and then either confirms or discards the result. The evaluation in
+this subsection checks whether this full path works correctly under different
+conditions, including normal matched cases, incomplete academic matching,
+manual correction before saving, and review cancellation. The main scenarios
+considered in this thesis are summarized in
+Table~\ref{table:end_to_end_workflow_scenarios}.
+
+\begin{table}[H]
+\centering
+\caption{Main end-to-end workflow scenarios considered in the grading application}
+\label{table:end_to_end_workflow_scenarios}
+\begin{tabular}{p{2.8cm}p{5.0cm}p{6.0cm}}
+\hline
+\textbf{Scenario} & \textbf{Input condition} & \textbf{Observed outcome} \\ \hline
+Matched submission & Student ID matches a student in the selected class and exam code matches an existing answer key & OCR/OMR result was returned for review, graded automatically, and stored successfully as a matched record after teacher confirmation \\ \hline
+Unmatched submission & Student ID is recognized but does not match the class roster, while the exam code is valid & OCR/OMR result remained reviewable and gradable, and the confirmed submission was stored successfully with unmatched status \\ \hline
+Manual correction before saving & OCR or OMR output contains an error that is corrected by the teacher on the review screen & The corrected values were applied, the grading result was recalculated, and only the reviewed version was stored in the database \\ \hline
+Discarded review & The teacher decides not to confirm the processed result and starts another scan & No final submission record was stored when the temporary review result was discarded \\ \hline
+\end{tabular}
+\end{table}
+
+The tested scenarios show that the implemented workflow behaves consistently
+with the intended teacher-centered grading design. In the matched-submission
+case, the application completed the full path from answer-sheet image input to
+saved grading record: the sheet was processed, student and exam-code
+information were recognized, answers were graded automatically, the review
+result was returned to the teacher, and the confirmed submission was stored
+successfully. This confirms that the recognition pipeline, grading logic, and
+academic data layer are integrated correctly in the normal operating case.
+
+The evaluation also confirms that the review stage works as an effective
+control point before persistence. In the manual-correction scenario, edited OCR
+or OMR outputs were reflected in the reviewed result, the score was
+recalculated accordingly, and only the corrected version was stored. In the
+discarded-review scenario, the workflow terminated without creating a final
+submission record. These outcomes are important because they show that the
+application does not force raw recognition output directly into the database,
+but preserves teacher control over final confirmation.
+
+Another important result is that the workflow handles incomplete academic
+matching without interrupting grading. When the recognized student ID could not
+be matched to the class roster, the application still returned a reviewable and
+gradable result, and the confirmed record was stored with unmatched status
+rather than being merged incorrectly into the class list. This behavior is
+consistent with the database and review design introduced earlier and supports
+safer result management in practical use.
+
+Overall, the end-to-end evaluation indicates that the proposed application can
+execute the intended grading workflow correctly across the main operational
+scenarios considered in this thesis. The result is significant because the
+practical value of the application depends not only on OCR and OMR accuracy,
+but also on whether the complete workflow remains reviewable, controllable, and
+consistent from image acquisition to final storage. Accordingly, this
+evaluation shows that the third objective, concerning automatic grading, the
+fourth objective, concerning teacher review before final storage, and the fifth
+objective, concerning consistent organization of grading-related data and
+confirmed records within one web application, have been addressed at the
+workflow level.
+
+\subsection{Processing Performance}
+\label{subsection:4.3.4}
+
+The current implementation is designed for lightweight use by a single teacher,
+not for high-concurrency institutional deployment. The backend runs the
+recognition pipeline on uploaded images and returns the result to the frontend
+for review. Since the OCR model and OMR processing are executed locally in the
+backend environment, processing time depends on the hardware configuration, the
+image size, and whether CPU or GPU inference is available.
+
+To obtain a practical response-time estimate, the backend processing endpoint
+was tested on five sample answer-sheet images in a local CPU-based development
+environment using the full
+\texttt{/api/v1/process-exam} workflow. In each run, an input answer-sheet image
+was uploaded to the backend, and the measured time covered the complete
+processing path until a reviewable JSON result was returned. This includes image
+decoding, sheet alignment, region extraction, OMR, OCR, grading, and response
+construction.
+
+Table~\ref{table:processing_performance_results} summarizes the measured
+response times. The observed processing time ranges from 1.135 s to 5.679 s per
+sheet, with an average processing time of 2.791 s. All tested requests were
+completed successfully and returned valid review results.
+
+\begin{table}[H]
+\centering
+\caption{Measured backend response time for end-to-end answer-sheet processing}
+\label{table:processing_performance_results}
+\begin{tabular}{lcc}
+\hline
+\textbf{Sample} & \textbf{Processing time (s)} & \textbf{HTTP status} \\ \hline
+Sample 1 & 5.679 & 200 \\
+Sample 2 & 1.513 & 200 \\
+Sample 3 & 1.135 & 200 \\
+Sample 4 & 1.278 & 200 \\
+Sample 5 & 4.348 & 200 \\ \hline
+Average & 2.791 & -- \\
+Minimum & 1.135 & -- \\
+Maximum & 5.679 & -- \\ \hline
+\end{tabular}
+\end{table}
+
+These results indicate that the proposed application can return reviewable
+grading results within a short delay that is suitable for a single-teacher
+workflow. The variation between the fastest and slowest samples suggests that
+processing time is affected by the complexity and visual characteristics of the
+input image, especially for OCR and document-processing steps. However, even the
+slowest measured case remained within a range that is still practical for
+teacher-centered review and confirmation.
+
+For the scope of this thesis, the practical performance requirement is that the
+application can process answer sheets one by one in a review-driven workflow
+rather than in high-throughput batch mode. Therefore, these measured response
+times are sufficient to support the intended use case of the application.
+Future work can extend this evaluation by measuring performance under GPU-based
+inference, larger batch sizes, and more diverse answer-sheet image conditions.
+
+\subsection{Non-functional Requirement Verification}
+\label{subsection:4.3.5}
+
+Besides functional correctness and recognition accuracy, the proposed grading
+application also needs to satisfy the non-functional requirements identified in
+Section~\ref{section:2.4}. These requirements mainly concern processing
+performance, reliability under practical input conditions, usability for a
+single teacher, consistency of stored grading records, and maintainability of
+the implementation. In this thesis, these requirements are not evaluated as
+isolated theoretical claims, but are examined through the design decisions,
+implementation structure, and experimental results presented in the previous
+sections.
+
+To avoid treating the acceptance decision as arbitrary, this thesis evaluates
+each non-functional requirement against a clearly stated source of criterion.
+For this application, the criteria come from the intended scope defined in
+Chapter~2: a lightweight web-based grading application for one teacher, working
+with structured answer sheets, local review-based confirmation, and
+single-user operation rather than institutional-scale deployment. As a result,
+some requirements are verified by quantitative measurement, while others are
+verified by workflow and architectural properties that can be directly checked
+against the implemented behavior.
+
+The requirement for acceptable processing performance is verified through the
+response-time measurement presented in Section~\ref{subsection:4.3.4}. The
+acceptance criterion is interactive one-by-one processing in the intended
+single-teacher workflow. For this thesis, that criterion is operationalized as
+successful local processing within 10 seconds per tested sheet. The measured
+average time is 2.791~s and the maximum observed time is 5.679~s, so the
+requirement is satisfied for the tested environment.
+
+The requirement for reliability is examined through both recognition evaluation
+and workflow behavior. Sections~\ref{subsection:4.3.1} and
+\ref{subsection:4.3.2} evaluate the OMR and OCR modules on the prepared test
+sets, while Section~\ref{subsection:4.3.3} shows that the application keeps the
+teacher in control through a review stage before final storage. Therefore,
+reliability in this thesis is supported not only by recognition results, but
+also by the ability of the workflow to expose uncertain outputs for correction
+instead of storing them automatically as final records. For the supported
+answer-sheet layout, the OMR evaluation reaches 100\% answer accuracy and the
+end-to-end OCR pipeline reaches 97.58\% normalized exact-match accuracy.
+Together with the review-before-save mechanism, these results satisfy the
+reliability requirement for the intended application scope.
+
+The requirement for usability is supported by the user-interface design and the
+end-to-end grading workflow. As described in Section~\ref{subsection:4.2.3}, the
+frontend is organized around the natural grading process of a single teacher,
+including preparation of academic data, answer-sheet scanning or upload, review
+of recognized results, submission confirmation, and later result inspection. The
+workflow scenarios in Section~\ref{subsection:4.3.3} further show that the
+teacher can complete these steps in a coherent order without interacting
+directly with low-level OCR or OMR processing details. In this thesis,
+usability is accepted by conformance to the teacher-oriented workflow defined
+in Chapter~2 rather than by a large-sample user survey. The implemented
+interface and scenario-based evaluation show that this criterion is satisfied.
+
+The requirement for data consistency is supported by the database design and
+submission-handling behavior. Section~\ref{subsection:4.1.4} shows that the
+database schema preserves links among classes, students, examinations, exam
+codes, answer keys, and submissions. Section~\ref{subsection:4.3.3} further
+shows that the application distinguishes matched and unmatched submissions,
+stores only confirmed reviewed results, and does not create a final submission
+record when a draft is discarded. Thus, the stored record remains consistent
+with both the selected academic context and the teacher's final decision.
+
+The requirement for maintainability and extensibility is supported mainly
+through the architecture and implementation structure of the application.
+Sections~\ref{section:4.1} and~\ref{section:4.2} show that the frontend
+interface, backend API, recognition pipeline, database layer, and storage logic
+are separated into distinct components. This separation makes the current
+application easier to extend in future work, such as by improving recognition
+modules, supporting additional answer-sheet layouts, or expanding the
+application beyond the current single-teacher scope. The implemented structure
+therefore satisfies the maintainability requirement at the level expected for a
+graduation-thesis application.
+
+The limited security and user-management scope identified in
+Section~\ref{section:2.4} is reflected directly in the current implementation,
+which is intentionally designed for a single teacher without administrator
+roles, role-based access control, or multi-user collaboration. Therefore, this
+requirement is satisfied mainly by scope definition rather than by a separate
+experimental test.
+
+Table~\ref{table:nonfunctional_verification} summarizes the relationship
+between the main non-functional requirements and the evidence presented in this
+chapter.
+
+\begin{table}[H]
+\centering
+\caption{Verification of the main non-functional requirements and their acceptance criteria}
+\label{table:nonfunctional_verification}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{0.15\textwidth}|p{0.23\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|}
+\hline
+\textbf{Requirement} & \textbf{Source of criterion} & \textbf{Acceptance criterion} & \textbf{Evidence / result} \\
+\hline
+Processing performance &
+Single-teacher interactive grading scope in Section~\ref{section:2.4} &
+Each tested sheet should be processed within 10~s in the local review workflow &
+Section~\ref{subsection:4.3.4}; average 2.791~s, maximum 5.679~s; satisfied \\
+\hline
+Reliability &
+Supported structured-sheet scope and review-before-save requirement in Sections~\ref{section:2.4} and \ref{subsection:2.2.3} &
+Recognition should be strong on the prepared dataset, and uncertain outputs must remain correctable before storage &
+Sections~\ref{subsection:4.3.1}--\ref{subsection:4.3.3}; OMR 100\%, OCR normalized exact match 97.58\%, review step present; satisfied \\
+\hline
+Usability &
+Teacher-oriented workflow defined in Sections~\ref{section:2.2} and \ref{section:2.4} &
+Teacher can complete prepare, scan, review, confirm, and inspect steps through the interface without low-level processing actions &
+Sections~\ref{subsection:4.2.3} and \ref{subsection:4.3.3}; workflow scenarios and UI support this sequence; satisfied \\
+\hline
+Data consistency &
+Business process and use-case postconditions in Sections~\ref{subsection:2.2.3} and \ref{section:2.3} &
+Only confirmed results become final records, and stored submissions preserve class, exam, code, and status context &
+Sections~\ref{subsection:4.1.4} and \ref{subsection:4.3.3}; matched/unmatched and discard behavior verified; satisfied \\
+\hline
+Maintainability and extensibility &
+Architectural requirement stated in Section~\ref{section:2.4} &
+Frontend, backend, recognition, and data layers are separated so future changes can be localized &
+Sections~\ref{section:4.1} and \ref{section:4.2}; component separation shown; satisfied \\
+\hline
+Security and user-management scope &
+Single-teacher scope limitation stated in Section~\ref{section:2.4} &
+No unsupported claims of multi-user security features are required for acceptance in the current thesis scope &
+Sections~\ref{section:2.4}, \ref{section:4.1}, and \ref{section:4.2}; scope-conformant implementation; satisfied \\
+\hline
+\end{tabular}
+\end{table}
+
+Overall, the evidence presented in this chapter supports the main
+non-functional requirements within the scope of a lightweight single-teacher
+grading application. Broader evaluation would still be needed for larger-scale
+deployment or more diverse operational conditions, but the current results are
+sufficient to support the practical objectives of this thesis. Taken together,
+the evidence in this chapter shows that the five objectives defined in
+Section~\ref{section:1.2} have been addressed within the intended scope of the
+proposed application.
+
+\section{Chapter Summary}
+\label{section:4.4}
+
+This chapter presented the design, implementation, and evaluation of the
+proposed grading application. The architecture separates the frontend review
+interface, backend API layer, OCR/OMR recognition pipeline, and database and
+storage layer. The implementation integrates OpenCV-based OMR, YOLO-CRNN-based
+OCR, FastAPI backend services, SQLAlchemy-based data models, and a React
+frontend interface into a single teacher-oriented application.
+
+The evaluation results show that the OMR pipeline performs reliably on the
+prepared structured answer-sheet dataset, achieving full student ID recognition,
+full answer recognition accuracy, and full exact sheet-level matching within
+that dataset. The OCR evaluation further shows that the student-name OCR module
+is effective at both the component level and the pipeline level. The YOLO-based
+text detector achieves high precision, recall, and mAP values, while the
+CRNN-based recognizer achieves high exact-match accuracy with low character and
+word error rates. At the end-to-end level, the complete OCR pipeline achieves
+93.33\% exact full-name accuracy and 97.58\% normalized exact-match accuracy on
+the labeled cropped-name dataset.
+
+The chapter also evaluated the application workflow beyond isolated recognition
+metrics. The end-to-end grading workflow demonstrates that the system can
+support the main practical cases required by the thesis, including matched
+submissions, unmatched submissions, manual correction before
+storage, and discarding temporary review results. These findings show that the
+proposed application is not only technically feasible in terms of OCR and OMR
+accuracy, but also practically suitable for a teacher-centered grading process
+in which reviewability, correction, and controlled storage are essential.
+
+\iffalse
+\section{Application Building}
+\subsection{Libraries and Tools}
+Sinh viên liệt kê các công cụ, ngôn ngữ lập trình, API, thư viện, IDE, công cụ kiểm thử, v.v. mà mình sử dụng để phát triển ứng dụng. Mỗi công cụ phải được chỉ rõ phiên bản sử dụng. SV nên kẻ bảng mô tả tương tự như Bảng \ref{table:my_label}. Nếu có nhiều nội dung trình bày, sinh viên cần xoay ngang bảng.
+
+\begin{table}[H]
+\centering{}
+    \begin{tabular}{lll}
+        \hline
+        \textbf{Mục đích} & \textbf{Công cụ}       & \textbf{Địa chỉ URL}    \\ \hline
+        IDE lập trình     & Eclipse Oxygen a64 bit & http://www.eclipse.org/ \\ \hline
+        v.v.              & v.v.                   & v.v.                    \\ \hline
+        \end{tabular}
+    \caption{Danh sách thư viện và công cụ sử dụng}
+    \label{fig:my_label}
+\end{table}
+
+\subsection{Achievement}
+Sinh viên trước tiên mô tả kết quả đạt được của mình là gì, ví dụ như các sản phẩm được đóng gói là gì, bao gồm những thành phần nào, ý nghĩa, vai trò?
+
+Sinh viên cần thống kê các thông tin về ứng dụng của mình như: số dòng code, số lớp, số gói, dung lượng toàn bộ mã nguồn, dung lượng của từng sản phẩm đóng gói, v.v. Tương tự như phần liệt kê về công cụ sử dụng, sinh viên cũng nên dùng bảng để mô tả phần thông tin thống kê này.
+
+\subsection{Illustration of main functions}
+Sinh viên lựa chọn và đưa ra màn hình cho các chức năng chính, quan trọng, và thú vị nhất. Mỗi giao diện cần phải có lời giải thích ngắn gọn. Khi giải thích, sinh viên có thể kết hợp với các chú thích ở trong hình ảnh giao diện.
+
+\section{Testing}
+Phần này có độ dài từ hai đến ba trang. Sinh viên thiết kế các trường hợp kiểm thử cho hai đến ba chức năng quan trọng nhất. Sinh viên cần chỉ rõ các kỹ thuật kiểm thử đã sử dụng. Chi tiết các trường hợp kiểm thử khác, nếu muốn trình bày, sinh viên đưa vào phần phụ lục.
+Sinh viên sau cùng tổng kết về số lượng các trường hợp kiểm thử và kết quả kiểm thử. Sinh viên cần phân tích lý do nếu kết quả kiểm thử không đạt.
+\section{Deployment}
+Sinh viên trình bày mô hình và/hoặc cách thức triển khai thử nghiệm/thực tế. Ứng dụng của sinh viên được triển khai trên server/thiết bị gì, cấu hình như thế nào. Kết quả triển khai thử nghiệm nếu có (số lượng người dùng, số lượng truy cập, thời gian phản hồi, phản hồi người dùng, khả năng chịu tải, các thống kê, v.v.)
+
+\fi
+
+\end{document}

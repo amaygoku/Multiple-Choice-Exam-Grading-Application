@@ -1,0 +1,98 @@
+{
+  "version": "4.0.0-beta.7",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "text",
+      "score": 0.9554838538169861,
+      "points": [
+        [
+          266.31855297088623,
+          0.0
+        ],
+        [
+          308.0750072479248,
+          0.0
+        ],
+        [
+          308.0750072479248,
+          38.411208629608154
+        ],
+        [
+          266.31855297088623,
+          38.411208629608154
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9552211761474609,
+      "points": [
+        [
+          185.90007312297823,
+          5.430003070831299
+        ],
+        [
+          245.84572699069977,
+          5.430003070831299
+        ],
+        [
+          245.84572699069977,
+          48.52522745132447
+        ],
+        [
+          185.90007312297823,
+          48.52522745132447
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9460022449493408,
+      "points": [
+        [
+          128.0124378681183,
+          3.5815009593963625
+        ],
+        [
+          170.24659156799316,
+          3.5815009593963625
+        ],
+        [
+          170.24659156799316,
+          48.668024396896364
+        ],
+        [
+          128.0124378681183,
+          48.668024396896364
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "daffd9af8f860ed85797_crop_12.png",
+  "imageData": null,
+  "imageHeight": 59,
+  "imageWidth": 629
+}

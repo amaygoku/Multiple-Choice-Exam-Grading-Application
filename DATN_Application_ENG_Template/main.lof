@@ -1,0 +1,27 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces General use case diagram of the OCR/OMR-based grading application.}}{9}{figure.caption.9}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Detailed use cases for academic data management.}}{10}{figure.caption.10}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Detailed use cases for grading-support functions.}}{11}{figure.caption.11}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Business process of the end-to-end grading workflow.}}{12}{figure.caption.12}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Overall architecture of the proposed grading application}}{28}{figure.caption.20}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces OMR pipeline workflow of the grading application}}{30}{figure.caption.21}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces OCR pipeline workflow for student-name recognition}}{32}{figure.caption.22}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Entity-relationship design of the application database}}{34}{figure.caption.23}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces User-interface design layouts for the dashboard and the class-and-exam workspace}}{38}{figure.caption.28}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces User-interface design layouts for the scanner screen and the review screen}}{39}{figure.caption.29}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces User-interface design layouts for the result-management screen and the analytics screen}}{40}{figure.caption.30}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Example of answer-block OMR visualization produced by the implementation}}{42}{figure.caption.31}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces YOLO-based word detection and extracted word crops used by the OCR implementation}}{44}{figure.caption.32}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Answer-sheet scanning interface and intermediate processing state}}{45}{figure.caption.33}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Overall recognition result review interface}}{46}{figure.caption.34}%
+\contentsline {figure}{\numberline {4.12}{\ignorespaces Detailed review views: student information, exam-code and OMR evidence, scan-result visualization, and editable OMR answer list}}{46}{figure.caption.35}%
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Saved submission and result-management interface}}{47}{figure.caption.36}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Examples of collected answer-sheet images used as practical OMR-oriented data}}{64}{figure.caption.45}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Examples of cropped Vietnamese student-name strings prepared as practical OCR-oriented data}}{65}{figure.caption.46}%
+\addvspace {10\p@ }
+\contentsfinish 
+\contentsfinish 

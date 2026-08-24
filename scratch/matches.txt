@@ -1,0 +1,100 @@
+File: .\config.yml (len 202)
+aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆfFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTuUùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ0123456789!"#$%&
+============================================================
+File: .\crop.py (len 151)
+:   (653, 495, 310, 495),
+}
+
+# Khung code v2 để người dùng tự sửa tham số tọa độ (định dạng: rx, ry, rw, rh trong hệ 1000x1000)
+REGIONS_V2 = {
+        
+============================================================
+File: .\fix_csv.py (len 152)
+,,,,,,,,,,
+5. Lời cam đoan của sinh viên đã nhận được nhiệm vụ,,,,,,,,,,
+Em xin cam kết sẽ hoàn thành các nhiệm vụ theo đúng kế hoạch.,,,,,,,,,,
+,,,,,,,
+============================================================
+File: .\fix_csv.py (len 183)
+,,,
+,,,,,,,Sinh viên,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,Trần Đức Lê Huy,,,
+,,,,,,,,,,
+6. Xác nhận của giáo viên hướng dẫn về việc giao nhiệm vụ cho sinh viên,,,,,,,,,,
+,,,,,,,
+============================================================
+File: .\grade.py (len 241)
+)
+    ocr_name = ocr_read_name(ho_ten_path)
+    
+    # 2. Thực hiện đối chiếu chéo (MSSV & OCR Name)
+    is_valid_student, final_mssv, verify_note, true_name = verify_student_info(mssv, ocr_name)
+
+    if not is_valid_student:
+        print(f
+============================================================
+File: .\grade.py (len 156)
+
+        elif not st_set.issubset(cr_set):
+            # Chọn thừa (tô nhầm) hoặc sai hoàn toàn -> mất điểm
+            q_score = 0.0
+            ket_qua = 
+============================================================
+File: .\grade.py (len 154)
+
+        else:
+            # Chọn đúng 1 vài đáp án nhưng thiếu -> điểm thành phần
+            q_score = len(st_set) / len(cr_set)
+            ket_qua = f
+============================================================
+File: .\rebuild_nb.py (len 189)
+
+cleaned_img_np = kmeans_binarize(input_file)
+
+if cleaned_img_np is not None:
+    # CHUYỂN ĐỔI SANG PIL IMAGE ĐỂ VIETOCR XỬ LÝ
+    cleaned_img_pil = Image.fromarray(cleaned_img_np).convert(
+============================================================
+File: .\rebuild_nb.py (len 170)
+ in locals():
+    s = detector.predict(cleaned_img_pil)
+    print("Kết quả OCR:", s)
+    
+    # Kiểm tra xem detector.predict(cleaned_img_pil) có lỗi không
+    # Nếu lỗi 
+============================================================
+File: .\detect_text\convert_png_to_jpg.py (len 210)
+)
+    os.makedirs(output_folder, exist_ok=True)
+    
+    # Lấy danh sách các file png
+    png_files = [f for f in os.listdir(folder_path) if f.lower().endswith('.png')]
+    
+    if not png_files:
+        print(
+============================================================
+File: .\detect_text\convert_png_to_jpg.py (len 157)
+, quality=95)
+                else:
+                    # Ảnh không trong suốt, convert sang RGB rồi lưu trực tiếp
+                    rgb_img = img.convert(
+============================================================
+File: .\scratch\search_alphabet.py (len 150)
+|\'[^\']{150,250}\'', content):
+            stripped = match[1:-1]
+            if any(c in stripped for c in 'đĐàáảãạêô'):
+                out.write(f
+============================================================
+File: .\ten_tv_successful_combined\splt.py (len 187)
+)
+
+# Tạo folder đích nếu chưa có
+dst_folder.mkdir(parents=True, exist_ok=True)
+
+# Lọc và copy file .png
+for file in src_folder.iterdir():
+    if file.is_file() and file.suffix.lower() == 
+============================================================

@@ -1,0 +1,537 @@
+\documentclass[../Main.tex]{subfiles}
+\begin{document}
+
+This chapter presents the requirement survey and analysis for the proposed
+OCR/OMR-based grading application. The chapter first surveys the current status of
+paper-based multiple-choice grading and related software solutions. It then
+summarizes the main functions of the application through use case analysis and the
+overall grading business process. Finally, the chapter describes the most
+important use cases and identifies the non-functional requirements that guide the
+design and implementation of the web application.
+
+\section{Survey of Existing Solutions}
+\label{section:2.1}
+
+This section surveys several existing solutions related to paper-based
+multiple-choice grading in order to identify the main product directions already
+available and the practical limitations that remain relevant to this thesis. The
+goal is not to review these products exhaustively, but to summarize
+representative solutions and clarify the gap that motivates the proposed
+application.
+
+Several existing solutions already support parts of the grading workflow.
+Gradescope
+provides a platform for administering and grading assessments, including
+paper-based exams and bubble-sheet assignments, with support for answer keys,
+uploaded submissions, automatic grading, result review, grade export, and
+statistics~\cite{gradescope2026}. ZipGrade represents a lightweight
+mobile-oriented approach in which teachers can scan answer sheets using a mobile
+device and obtain grading results together with item analysis and data export
+~\cite{zipgrade2026}. Commercial OMR software such as Remark Office OMR focuses
+on machine-readable forms, mark recognition, OCR-related data capture, and
+structured data export for examination and survey workflows
+~\cite{remarkoffice2026}. These solutions show that automated support for
+paper-based grading is feasible, but they reflect different usage contexts and
+product priorities.
+
+From the perspective of this thesis, each direction still has limitations.
+Gradescope is more aligned with a broad platform-based assessment workflow than
+with a lightweight single-teacher web application. ZipGrade is convenient for
+fast scanning and reporting, but its workflow is primarily organized around
+mobile-based grading. Remark Office OMR supports structured form processing, but
+it may require users to follow specific form-design, licensing, and software
+procedures. As a result, these solutions do not directly match the practical
+scope of a web application in which one teacher manages classes, students,
+examinations, answer keys, scanned submissions, recognition review, and grading
+results within one consistent workflow. Table~\ref{table:status_survey_comparison}
+summarizes this comparison from the perspective of the current thesis.
+
+\begin{table}[H]
+    \centering
+    \caption{Comparison of representative existing grading solutions}
+    \label{table:status_survey_comparison}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{|p{0.22\textwidth}|p{0.28\textwidth}|p{0.4\textwidth}|}
+        \hline
+        \textbf{Solution} & \textbf{Main direction} & \textbf{Main limitation for this thesis} \\
+        \hline
+        Gradescope~\cite{gradescope2026} & Platform-based assessment and grading & More aligned with broad assessment-platform workflows than with a lightweight single-teacher web application \\
+        \hline
+        ZipGrade~\cite{zipgrade2026} & Mobile answer-sheet grading & Primarily organized around mobile scanning and mobile-centered grading convenience \\
+        \hline
+        Remark Office OMR~\cite{remarkoffice2026} & Commercial OMR form processing & May require specific form-design, licensing, and software procedures \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Based on this survey, the application proposed in this thesis is intended to
+address a more focused need: a teacher-oriented web application that supports
+academic data management, answer-sheet processing, OCR/OMR-based recognition,
+teacher review, submission storage, and result inspection within one integrated
+workflow. In other words, the proposed application is not positioned as a broad
+institutional platform, a mobile-first grading tool, or a general-purpose
+commercial OMR product. Instead, it is designed to support the practical daily
+workflow of one teacher working with structured paper-based multiple-choice
+answer sheets.
+
+This identified gap leads to the main functional requirements of the
+application. The application needs to support class and student management,
+examination and answer-key setup, answer-sheet image processing, recognition
+review and correction, submission storage, and result inspection. These
+requirements form the basis for the functional overview and use case analysis
+presented in Section~\ref{section:2.2} and the following sections.
+
+\section{Functional overview}
+\label{section:2.2}
+
+As discussed in Section~\ref{section:2.1}, existing solutions already support
+parts of the paper-based grading workflow, but they do not fully match the
+scope of this thesis. Platform-based systems are broader than the intended
+single-teacher workflow, mobile-oriented applications emphasize scanning
+convenience rather than integrated academic management, and commercial OMR
+products often follow their own form-processing procedures. Therefore, the
+proposed application needs to combine the practical functions that are relevant
+to one teacher while avoiding product assumptions that are not suitable for this
+project.
+
+For this reason, the application is designed as a web-based tool. A web-based
+application is suitable for the current problem because it allows image
+processing, grading, review, and academic data management to be accessed
+through one consistent interface without requiring a mobile-only workflow or a
+larger institutional platform. At the same time, because the interface is
+browser-based, the application can still be used on mobile devices when the
+teacher wants to capture or upload answer-sheet images directly from a phone.
+In practice, this means the proposed application supports a flexible usage
+pattern: image acquisition can be performed on a phone, while review,
+management, and result inspection can be carried out on a larger desktop or
+laptop screen when needed.
+
+At a high level, the proposed application provides two main groups of
+functions. The first group supports academic data management, including classes,
+students, examinations, exam codes, and answer keys. These functions establish
+the structured context required for later grading activities.
+
+The second group supports the grading workflow itself. It includes answer-sheet
+image acquisition, OCR/OMR-based recognition, automatic grading, review of
+recognized results, submission storage, later editing of saved submissions, and
+result inspection. Together, these functions allow the application to assist
+the teacher not only in answer-sheet processing, but also in organizing grading
+outputs in a consistent way.
+
+Based on this functional overview, the next subsections present the general use
+case diagram, the detailed use case diagrams, and the business process of the
+application.
+
+\subsection{General use case diagram}
+\label{subsection:2.2.1}
+
+The general use case diagram presents the main interactions between the teacher
+and the proposed application. Since the current scope is limited to a
+single-teacher workflow, the teacher is the only actor in the application. As
+shown in Figure~\ref{fig:general_use_case}, the diagram reflects the two main
+functional groups introduced in Section~\ref{section:2.2}: academic data
+management and grading support.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Figure/general_use_case.png}
+
+    \caption{General use case diagram of the OCR/OMR-based grading application.}
+    \label{fig:general_use_case}
+\end{figure}
+
+At the general level, the academic-management group is represented by the use
+cases for managing classes and students, and managing examinations, exam codes,
+and answer keys. The grading-support group is represented by the use cases for
+processing answer sheets, reviewing recognition results, saving submissions,
+editing saved submissions, and viewing stored results and analytics.
+
+Therefore, the purpose of the general use case diagram is to summarize the main
+functional scope of the application before the more detailed use case diagrams
+are presented in the next subsection.
+
+\subsection{Detailed use case diagrams}
+\label{subsection:2.2.2}
+
+The detailed use case diagrams refine the high-level functions presented in the
+general use case diagram. In this thesis, the detailed use cases are divided
+into two groups. The first group covers academic data management before grading,
+and the second group covers the grading-support functions used during and after
+answer-sheet processing.
+
+The data-management group includes the functions for managing classes, students,
+examinations, exam codes, and answer keys. These use cases establish the
+academic context required by the application. As shown in
+Figure~\ref{fig:data_management_use_case}, this group is represented by two main
+use cases: managing classes and students, and managing examinations, exam
+codes, and answer keys. Together, these two use cases prepare the structured
+data that later grading activities depend on.
+Figure~\ref{fig:data_management_use_case} presents the detailed use cases of
+this academic-management group.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Figure/data_management_use_case.png}
+    \caption{Detailed use cases for academic data management.}
+    \label{fig:data_management_use_case}
+\end{figure}
+
+The grading-support group includes the functions for processing answer sheets,
+reviewing recognition results, saving the final submission, editing saved
+submissions, and viewing stored results and analytics. As shown in
+Figure~\ref{fig:grading_workflow_use_case}, these functions are modeled as five
+main use cases: Process answer sheet, Review recognition result, Save
+submission, Edit saved submission, and View results and analytics. Among them,
+Save submission is linked to Review recognition result through an
+\texttt{<<extend>>} relationship, which indicates that saving is performed as an
+additional action after the teacher has reviewed the draft result. The other use
+cases represent the remaining teacher interactions for processing a new sheet,
+revising a stored record, and inspecting saved grading results.
+Figure~\ref{fig:grading_workflow_use_case} presents the detailed use cases of
+this grading-support group.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{Figure/Grading_workflow_use_case.png}
+    \caption{Detailed use cases for grading-support functions.}
+    \label{fig:grading_workflow_use_case}
+\end{figure}
+
+Together, these detailed diagrams show that the proposed application is organized
+around two connected functional groups: academic data management and
+grading-support functions. This separation reflects the actual usage of the application,
+in which grading depends not only on answer-sheet recognition, but also on the
+availability of structured class, student, and examination information.
+
+\subsection{Business process}
+\label{subsection:2.2.3}
+
+The main business process of the application is the end-to-end grading workflow
+for paper-based multiple-choice answer sheets. This process combines the major
+use cases of the application, from preparing academic data to saving the final
+submission and later inspecting stored results. Figure~\ref{fig:business_process}
+illustrates the overall process.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\textwidth]{Figure/overview.png}
+    \caption{Business process of the end-to-end grading workflow.}
+    \label{fig:business_process}
+\end{figure}
+
+The process begins when the teacher prepares the necessary academic data,
+including classes, students, examinations, exam codes, and answer keys. During
+grading, the teacher selects a class and an examination, then captures an
+answer-sheet image by camera or uploads it from a local device. The application
+processes the image and returns a draft result containing the recognized student
+information, exam code, selected answers, and grading output when an answer key
+is available.
+
+After processing, the teacher reviews the returned result before final storage.
+At this stage, recognized information can be checked and corrected if necessary.
+If the teacher confirms the result, the application stores the submission together
+with the related grading data and makes the saved result available for later
+inspection. If the teacher cancels the review or starts another scan without
+saving, the draft result is discarded and no final submission record is
+created. This business process reflects the practical role of the application
+as a reviewable grading tool rather than a fully automatic grading mechanism.
+
+\section{Functional description}
+\label{section:2.3}
+
+This section describes the most important use cases of the proposed application. The
+descriptions focus on the functional behavior expected by the teacher and the
+application, including the main flow, alternative flow, preconditions, and
+postconditions.
+
+\subsection{Manage classes and students}
+\label{subsection:2.3.1}
+
+This use case allows the teacher to create and maintain the class and student
+data used by the grading application. Each class contains a list of students, and
+each student is identified by information such as student ID and student name.
+This function provides the academic foundation required for later student
+matching, submission storage, and result management. The main elements of this
+use case are summarized in Table~\ref{table:uc_manage_students}.
+
+\begin{table}[H]
+    \centering
+    \caption{Use case description: Manage classes and students}
+    \label{table:uc_manage_students}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{|p{0.25\textwidth}|p{0.65\textwidth}|}
+        \hline
+        \textbf{Use case name} & Manage classes and students \\
+        \hline
+        \textbf{Actor} & Teacher \\
+        \hline
+        \textbf{Preconditions} & The teacher has opened the web application. \\
+        \hline
+        \textbf{Main flow} & The teacher creates a new class or selects an existing class, adds student records, updates student information when needed, and views the student list associated with the selected class. \\
+        \hline
+        \textbf{Alternative flow} & If the entered class or student information is incomplete, invalid, or causes a data conflict, the application does not save the change successfully and the teacher must correct the data. \\
+        \hline
+        \textbf{Postconditions} & The class and student records are stored in the application and become available for later grading, submission management, and student matching. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Manage examinations, exam codes, and answer keys}
+\label{subsection:2.3.2}
+
+This use case allows the teacher to prepare examination data before grading. An
+exam may contain one or more exam codes, and each exam code has its own answer
+key. This design supports multiple versions of the same multiple-choice test.
+This function defines the examination context required for answer-sheet
+processing, automatic grading, and review-time score recalculation. Its main
+functional elements are presented in Table~\ref{table:uc_manage_exams}.
+
+\begin{table}[H]
+    \centering
+    \caption{Use case description: Manage examinations, exam codes, and answer keys}
+    \label{table:uc_manage_exams}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{|p{0.25\textwidth}|p{0.65\textwidth}|}
+        \hline
+        \textbf{Use case name} & Manage examinations, exam codes, and answer keys \\
+        \hline
+        \textbf{Actor} & Teacher \\
+        \hline
+        \textbf{Preconditions} & At least one class exists in the application, and the teacher has selected the class in which the examination will be managed. \\
+        \hline
+        \textbf{Main flow} & The teacher creates a new examination or selects an existing one, defines one or more exam codes, enters or edits the answer key for each exam code, and saves the examination configuration. \\
+        \hline
+        \textbf{Alternative flow} & If the examination information is incomplete, the answer key is invalid, or an exam code causes a data conflict, the application does not save the change successfully and the teacher must correct the data. \\
+        \hline
+        \textbf{Postconditions} & The examination, its exam codes, and their answer keys are stored in the application and become available for later answer-sheet processing, automatic grading, and score recalculation during review. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Process answer sheet}
+\label{subsection:2.3.3}
+
+This use case starts the OCR/OMR processing workflow. The teacher selects the
+class and examination context, then captures an answer sheet using the camera or uploads
+an existing image file. The application processes the image and returns a draft result
+for review. This function serves as the entry point from raw answer-sheet image
+input to a reviewable grading draft. The corresponding use case description is
+presented in Table~\ref{table:uc_process_sheet}.
+
+\begin{table}[H]
+    \centering
+    \caption{Use case description: Process answer sheet}
+    \label{table:uc_process_sheet}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{|p{0.25\textwidth}|p{0.65\textwidth}|}
+        \hline
+        \textbf{Use case name} & Process answer sheet \\
+        \hline
+        \textbf{Actor} & Teacher \\
+        \hline
+        \textbf{Preconditions} & A class and an examination have been selected, and an answer-sheet image is provided by camera capture or local upload. \\
+        \hline
+        \textbf{Main flow} & The teacher submits the image. The application decodes and processes the image, detects the answer sheet, extracts relevant regions, recognizes student information and exam code, detects selected answers, and returns a draft review result together with grading information and related processing artifacts. \\
+        \hline
+        \textbf{Alternative flow} & If the image cannot be processed, the answer sheet cannot be detected reliably, or the processing request fails, the application does not produce a valid draft result and the teacher must capture or upload another image. \\
+        \hline
+        \textbf{Postconditions} & A review draft is displayed to the teacher. At this stage, no final submission record is stored unless the teacher confirms and saves the result. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Review recognition result}
+\label{subsection:2.3.4}
+
+This use case allows the teacher to inspect and correct the OCR/OMR result before
+final storage. The review screen displays recognized student name, student ID,
+exam code, selected answers, score information, and artifact images returned by
+the processing pipeline. This function ensures that uncertain recognition outputs
+can be checked and corrected before they become part of the saved grading
+record. The main description of this use case is given in
+Table~\ref{table:uc_review_result}.
+
+\begin{table}[H]
+    \centering
+    \caption{Use case description: Review recognition result}
+    \label{table:uc_review_result}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{|p{0.25\textwidth}|p{0.65\textwidth}|}
+        \hline
+        \textbf{Use case name} & Review recognition result \\
+        \hline
+        \textbf{Actor} & Teacher \\
+        \hline
+        \textbf{Preconditions} & The application has returned a review draft after processing an answer-sheet image. \\
+        \hline
+        \textbf{Main flow} & The teacher reviews the recognized student information, exam code, selected answers, grading information, and related artifact images. If necessary, the teacher edits incorrect fields. The application then recalculates the grading result based on the reviewed answers and the selected exam-code answer key. \\
+        \hline
+        \textbf{Alternative flow} & If the teacher decides not to continue with the current review, the teacher can cancel the draft or start another scan. In that case, the draft is discarded and no final submission record is created. \\
+        \hline
+        \textbf{Postconditions} & The reviewed draft is either ready to be saved as a final submission or discarded if the teacher cancels the review. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Save submission}
+\label{subsection:2.3.5}
+
+This use case stores the confirmed grading result. After the teacher confirms the
+reviewed result, the application sends the final payload to the backend. The
+backend stores the submission record together with the related academic and
+grading data. This function turns a reviewed draft into a persistent submission
+record that can later be searched, inspected, and analyzed. Its main
+description is summarized in Table~\ref{table:uc_save_submission}.
+
+\begin{table}[H]
+    \centering
+    \caption{Use case description: Save submission}
+    \label{table:uc_save_submission}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{|p{0.25\textwidth}|p{0.65\textwidth}|}
+        \hline
+        \textbf{Use case name} & Save submission \\
+        \hline
+        \textbf{Actor} & Teacher \\
+        \hline
+        \textbf{Preconditions} & A reviewed draft is available and the teacher chooses to save it. \\
+        \hline
+        \textbf{Main flow} & The application prepares the reviewed submission data, determines the matched student and exam-code context when available, assigns the submission status, and sends the final payload to the backend. If no duplicate submission exists, the backend stores the new submission and returns the saved record. If a duplicate is detected and the teacher accepts the save, the existing record is updated and returned. \\
+        \hline
+        \textbf{Alternative flow} & If the student cannot be matched or the exam code is unknown, the application still stores the submission with an appropriate status for later review. If a duplicate submission is detected and the teacher does not approve overwriting it, the save is cancelled and no new record is stored. \\
+        \hline
+        \textbf{Postconditions} & The submission is stored or updated in the database and becomes available in the result-management interface. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{View results and analytics}
+\label{subsection:2.3.6}
+
+This use case allows the teacher to inspect saved submissions and view summary
+analytics after grading results have been stored. It supports later checking,
+result management, and performance monitoring within the application. This
+function helps the teacher move from individual sheet processing to broader
+inspection of stored grading outcomes. The corresponding description is
+presented in Table~\ref{table:uc_view_results}.
+
+\begin{table}[H]
+    \centering
+    \caption{Use case description: View results and analytics}
+    \label{table:uc_view_results}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{|p{0.25\textwidth}|p{0.65\textwidth}|}
+        \hline
+        \textbf{Use case name} & View results and analytics \\
+        \hline
+        \textbf{Actor} & Teacher \\
+        \hline
+        \textbf{Preconditions} & At least one class or examination has been created in the application. Detailed results and analytics are available when saved submissions exist. \\
+        \hline
+        \textbf{Main flow} & The teacher opens the result or analytics view, selects the relevant class, examination, or exam code, and inspects saved submissions, scores, statuses, detailed result records, and summary analytics. The teacher may also filter the displayed data and open an individual submission for closer review. \\
+        \hline
+        \textbf{Alternative flow} & If no saved submission matches the selected filters, the application displays an empty state instead of result details or analytics. \\
+        \hline
+        \textbf{Postconditions} & The teacher obtains a structured view of saved grading outcomes and related analytics for later checking, review, and result management. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Edit saved submission}
+\label{subsection:2.3.7}
+
+This use case allows the teacher to reopen and modify a submission that has
+already been stored in the application. Unlike the review step that occurs
+immediately after OCR/OMR processing, this function applies to an existing
+saved record in the result-management interface. It supports later correction
+when the teacher wants to adjust student information, exam code, detected
+answers, or the resulting score after the submission has already been stored.
+The corresponding description is presented in
+Table~\ref{table:uc_edit_saved_submission}.
+
+\begin{table}[H]
+    \centering
+    \caption{Use case description: Edit saved submission}
+    \label{table:uc_edit_saved_submission}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{|p{0.25\textwidth}|p{0.65\textwidth}|}
+        \hline
+        \textbf{Use case name} & Edit saved submission \\
+        \hline
+        \textbf{Actor} & Teacher \\
+        \hline
+        \textbf{Preconditions} & At least one submission has already been stored in the application, and the teacher has opened the result-management interface. \\
+        \hline
+        \textbf{Main flow} & The teacher selects a saved submission from the list of stored results, opens the edit panel, reviews the stored student information, exam code, answers, score, and related evidence images, then modifies the necessary fields. The application recalculates the score based on the updated answers and the selected exam-code answer key, sends the updated payload to the backend, and stores the revised submission. \\
+        \hline
+        \textbf{Alternative flow} & If the teacher closes the edit panel without saving, the stored submission remains unchanged. If the updated information cannot be matched consistently with the existing academic context, the application still preserves the edited submission with the appropriate status for later review. \\
+        \hline
+        \textbf{Postconditions} & The saved submission is updated in the database and remains available in the result-management interface with the revised information and grading result. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Non-functional requirements}
+\label{section:2.4}
+
+Besides functional requirements, the application must also satisfy several
+non-functional requirements. These requirements are important because the application
+processes camera-captured answer-sheet images and stores grading records that the
+teacher may need to review later.
+
+In this thesis, the non-functional requirements are defined as project-specific
+acceptance targets derived from the intended usage scope rather than as
+universal system-wide benchmarks. Since the application is designed for a
+single teacher working in a local review-driven grading workflow, the
+acceptance criteria are based on that operational context: interactive response
+time for one-by-one answer-sheet processing, reliable handling of the supported
+structured sheet layout, coherent teacher review and confirmation flow,
+consistent storage of confirmed records, and modular implementation structure
+for future extension.
+
+First, the application should provide acceptable processing performance for classroom
+grading. A single answer-sheet image should be processed within a reasonable time
+so that the teacher can scan many sheets consecutively without excessive waiting.
+The review workflow should remain responsive after the backend returns the
+recognition result.
+
+Second, the application should be reliable in handling imperfect input images. Since
+the application supports camera capture and local image upload rather than only
+controlled scanner input, the processing pipeline should tolerate moderate
+rotation, perspective distortion, uneven lighting, and image noise. When the
+recognition result is uncertain, the application should expose the result to the
+teacher for correction instead of silently storing unreliable data.
+
+Third, the application should be easy to use for a single teacher. The main workflow
+should follow the teacher's natural grading process: prepare class, student,
+examination, and answer-key data,
+scan or upload a sheet, review the recognized result, confirm the submission, and
+continue with the next sheet. The interface should not require the teacher to
+understand internal OCR/OMR algorithms in order to complete grading.
+
+Fourth, the application should maintain data consistency. Submissions must be linked
+to the selected class, exam, exam code, and matched student when such information
+is available. If the student or exam code cannot be matched automatically, the
+submission should still preserve enough status information for later review.
+
+Fifth, the application should be maintainable and extensible. The implementation
+should separate the frontend interface, backend API, recognition pipeline,
+database models, and analytics components so that future improvements can be made
+without rewriting the entire application. Possible extensions include supporting more
+answer-sheet layouts, improving recognition robustness, adding multi-teacher
+accounts, and providing more advanced analytics.
+
+Finally, the scope of security and user management is intentionally limited in
+this thesis. The current application is designed for a single teacher and does not
+include administrator functions, role-based access control, or multi-user
+collaboration. These features are considered future extensions rather than core
+requirements of the present implementation.
+
+This chapter has analyzed the requirements of the proposed OCR/OMR-based grading
+application. It surveyed the current grading context and comparable solutions,
+identified the main functional needs, described the general and detailed use
+cases, explained the main grading business process, and summarized the
+non-functional requirements. Based on these requirements, the next chapter
+presents the main technologies used to design and implement the application.
+
+\end{document}

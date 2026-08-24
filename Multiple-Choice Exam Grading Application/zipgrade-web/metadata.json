@@ -1,0 +1,12 @@
+{
+  "name": "ZipGrade Web",
+  "description": "A camera-based online multiple-choice grading app with answer sheet generation and score management.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "OMR Scanner",
+    "Quiz Management",
+    "Auto Grading"
+  ]
+}

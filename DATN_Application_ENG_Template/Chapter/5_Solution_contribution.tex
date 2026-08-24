@@ -1,0 +1,189 @@
+\documentclass[../Main.tex]{subfiles}
+\begin{document}
+
+Chapter~4 presented the design, implementation, and evaluation of the proposed grading application. Based on those results, this chapter summarizes the main solutions developed in the thesis and highlights its principal contributions. Rather than reiterating implementation details, the discussion focuses on the key technical and system-level ideas that enable the application to address the practical challenges of paper-based multiple-choice grading. The main contributions are organized into four parts: a structured answer-sheet alignment and OMR pipeline, a two-stage OCR pipeline for Vietnamese student-name recognition, a human-in-the-loop review architecture that improves the practical reliability of the grading workflow, and the preparation of realistic OCR/OMR data for development and evaluation.
+
+\section{Structured Answer-Sheet Alignment and OMR Pipeline}
+\label{section:5.1}
+
+\subsection{Problem}
+\label{subsection:5.1.1}
+
+One of the primary practical difficulties of paper-based grading is that input images are rarely captured under strictly controlled conditions. In realistic scenarios, answer sheets may be photographed by mobile devices under uneven lighting, partial shadows, rotation, or perspective distortion. These factors can reduce the reliability of direct mark analysis. If the sheet is misaligned or local illumination is not normalized, even a simple pixel-based OMR method may yield unstable results in student ID recognition, exam-code recognition, and answer detection.
+
+\subsection{Solution}
+\label{subsection:5.1.2}
+
+To mitigate these issues, this thesis develops a structured preprocessing and
+OMR pipeline that stabilizes the answer-sheet image prior to recognition. The
+supported answer sheet follows a fixed layout, so the positions of the student
+ID grid, exam-code grid, and answer blocks are known after document
+normalization. The proposed workflow first decodes the uploaded image, detects
+the sheet boundary, and applies perspective transformation to generate a
+normalized top-down view. Following alignment, the application crops the
+predefined functional regions required for grading and then applies grayscale
+conversion, lighting normalization, thresholding, and grid- or row-based
+analysis so that filled marks can be distinguished more reliably from the
+background.
+
+Within this aligned framework, the OMR logic is applied in a rule-based but carefully structured manner. For the student ID and exam code, the system processes the cropped regions as digit grids, selecting the most likely marked cell in each column based on cell-level fill evidence and configured thresholds. For the multiple-choice answer blocks, the system evaluates the fill evidence of each option in each question row and compiles the recognized outputs into a complete answer list. This targeted approach leverages the fixed layout of the supported answer sheets, allowing the application to exploit structural knowledge instead of relying on a computationally heavy, fully general recognition model.
+
+The primary contribution of this part is therefore not merely the application
+of OMR, but the engineering of an application-specific pipeline that makes OMR
+practical for the target grading workflow. By integrating alignment,
+layout-based region extraction, preprocessing, and rule-based mark analysis,
+the application helps reduce the sensitivity of grading to common image
+distortion and illumination variation. In particular, the implemented solution
+does not require explicit corner markers or additional runtime region markers
+on the paper form, even though it still relies on a predefined structured
+answer-sheet layout. This contribution is important because it allows the
+system to work with ordinary camera-captured images while avoiding unnecessary
+operational constraints, without claiming layout-free or fully general
+document understanding.
+
+\subsection{Result}
+\label{subsection:5.1.3}
+
+The practical result of this contribution is that the application can process
+ordinary camera-captured answer sheets without requiring explicit corner
+markers or extra runtime region markers on the paper form, while still
+preserving the structured layout needed by the grading workflow. In the
+evaluation presented in Chapter~4, the OMR component achieved strong practical
+performance on the prepared answer-sheet data, showing that the implemented
+alignment and mark-analysis pipeline is reliable enough for teacher-oriented
+review and grading.
+
+\section{Two-Stage OCR Pipeline for Vietnamese Student-Name Recognition}
+\label{section:5.2}
+
+\subsection{Problem}
+\label{subsection:5.2.1}
+
+Another important challenge in the grading application is the recognition of student names. Unlike the student ID and exam code, which are represented by structured mark grids, the student-name field contains free-form text with variable length, spacing, and potentially inconsistent writing styles. This task becomes more difficult in the context of Vietnamese names, where diacritics, connected strokes, and irregular word boundaries may increase the likelihood of recognition errors. A simple rule-based approach is not suitable for this field, while general-purpose OCR tools may not be well aligned with the specific data characteristics of the application.
+
+\subsection{Solution}
+\label{subsection:5.2.2}
+
+To address this limitation, the thesis develops a two-stage OCR pipeline tailored for student-name recognition. In the first stage, a YOLO-based text detector localizes word-level text regions within the cropped student-name area. This step is essential because the name field may contain multiple words whose positions vary across different answer sheets. In the second stage, the detected word images are fed into a CRNN-based recognizer, which predicts the character sequence of each word. The recognized words are subsequently combined to form the final student-name output returned by the OCR module.
+
+This decoupled design serves as a practical alternative to applying a single OCR process to the entire name crop. By separating text localization from text recognition, the application can handle word placement variability more flexibly. Furthermore, employing a trainable recognition model makes the OCR process more adaptable to Vietnamese name data than a fixed general-purpose OCR workflow. The pipeline also remains integrated into the local backend environment, aligning with the system's goal of being lightweight and self-contained.
+
+The contribution of this part lies in adapting a two-stage OCR architecture to the specific problem of Vietnamese student-name recognition within an answer-sheet grading context. The integration of YOLO-based word detection and CRNN-based sequence recognition provides a controllable and application-specific solution for extracting student-name information. In the context of the proposed application, this contribution enables student-name recognition within the grading workflow while still allowing teacher review and correction when necessary.
+
+\subsection{Result}
+\label{subsection:5.2.3}
+
+The practical result of this contribution is that the application can recognize
+Vietnamese student names as part of the grading workflow instead of treating the
+name field as a purely manual entry step. Chapter~4 showed that the OCR module
+achieved high practical performance on the prepared validation data, confirming
+that the two-stage design is suitable for the target application while still
+remaining reviewable when uncertain outputs appear.
+
+\section{Human-in-the-Loop Review Architecture}
+\label{section:5.3}
+
+\subsection{Problem}
+\label{subsection:5.3.1}
+
+Even when OCR and OMR modules perform well, automatic grading cannot be treated as infallible in practice. Recognition errors may still occur due to ambiguous marks, complex handwriting, or degraded input images. If the system were to commit raw OCR/OMR results directly as final grading records, such errors could undermine teacher trust and introduce inaccuracies into the grading database. Therefore, a practical grading application must not only automate recognition but also provide a mechanism for controlled human verification before data persistence.
+
+\subsection{Solution}
+\label{subsection:5.3.2}
+
+To ensure data integrity, the thesis structures the application around a human-in-the-loop review architecture. After the backend finishes processing an answer sheet, the application does not immediately finalize the submission. Instead, it returns a reviewable result to the frontend, including recognized student information, detected exam code, selected answers, grading output, and visual evidence such as aligned sheet images, cropped regions, and OMR result overlays. The teacher can inspect these outputs, correct uncertain OCR or OMR fields, and validate the grading result before confirming the submission.
+
+This architecture shifts the role of OCR and OMR from fully autonomous decision makers to assistive recognition components within a teacher-controlled workflow. The system reduces repetitive manual grading tasks through automatic detection, extraction, and scoring, while preserving human oversight at the critical point of final data entry. In addition, the application distinguishes between reliably matched submissions and submissions that still require teacher attention, helping prevent uncertain recognition outputs from being treated as final grading records without review.
+
+The contribution of this part is a system-level design that improves the practical usability of the grading application. Rather than treating OCR and OMR as isolated technical tasks, the thesis integrates them into a review-centered workflow where visual evidence, editable outputs, and teacher confirmation are first-class system features. This is an important practical contribution for educational use, as the success of the application depends not only on recognition accuracy but also on the teacher's ability to trust, inspect, and manage the grading process with confidence.
+
+\subsection{Result}
+\label{subsection:5.3.3}
+
+The practical result of this contribution is a grading workflow in which
+automatic recognition reduces repetitive work, while the teacher still keeps
+control over final confirmation and storage. This makes the application more
+usable in real educational settings, because saved submissions are not treated
+as raw model outputs but as reviewed grading records that can later be managed
+and inspected with greater confidence.
+
+\section{Practical Data Collection and Preparation for OCR/OMR}
+\label{section:5.4}
+
+\subsection{Problem}
+\label{subsection:5.4.1}
+
+Besides the design of the processing and review workflow, another practical
+contribution of this thesis lies in the preparation of data that reflects the
+actual operating conditions of the proposed application. The grading
+application is not intended for highly controlled scanner-only inputs or for
+synthetic benchmark forms. Instead, it is designed for answer-sheet images
+captured in ordinary educational use, where image quality, writing style, and
+marking behavior may vary. For that reason, the thesis does not only implement
+OCR and OMR modules, but also prepares practical data that supports their
+development and evaluation in a realistic context.
+
+\subsection{Solution}
+\label{subsection:5.4.2}
+
+For the OMR component, the prepared data consists of answer-sheet images
+following the supported structured layout, together with the corresponding
+mark-based regions used for student ID, exam-code, and answer recognition.
+This data reflects the actual form structure handled by the application and
+captures realistic variation in mark filling, sheet placement, and image
+capture conditions. Figure~\ref{fig:chapter5_omr_data} illustrates several
+answer-sheet samples collected for this OMR-oriented setting. This practical
+dataset contribution is important because the implemented OMR pipeline depends
+not only on algorithm design, but also on representative form images that
+reflect the intended deployment scenario.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{Figure/chapter5_omr_dataset.png}
+\caption{Examples of collected answer-sheet images used as practical OMR-oriented data}
+\label{fig:chapter5_omr_data}
+\end{figure}
+
+For the OCR component, the prepared data focuses on Vietnamese student-name
+images collected from real answer-sheet name regions rather than generic OCR
+benchmarks. These images contain practical variation in handwriting, spacing,
+diacritics, and local image quality. In addition, the data is organized in a
+way that supports the two-stage OCR pipeline used in the application: full
+name-region crops are associated with the word-level text regions extracted
+after detection and with the corresponding textual labels used for recognition
+evaluation. The thesis also includes manual data annotation and application-
+specific model preparation for this OCR task: the collected student-name data
+is labeled by the author and then used to train or fine-tune the OCR models
+for the target grading context. Figure~\ref{fig:chapter5_ocr_data} presents an
+example of several cropped handwritten name strings prepared from this OCR
+dataset. This contribution is meaningful because Vietnamese
+handwritten student-name recognition is one of the most application-specific
+parts of the thesis and requires data that closely matches the actual usage
+context of the grading application.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{Figure/chapter5_ocr_dataset.png}
+\caption{Examples of cropped Vietnamese student-name strings prepared as practical OCR-oriented data}
+\label{fig:chapter5_ocr_data}
+\end{figure}
+
+\subsection{Result}
+\label{subsection:5.4.3}
+
+Taken together, these prepared OCR and OMR data resources form an additional
+practical contribution of the thesis. They are not presented as large-scale
+general-purpose benchmark datasets, but as application-oriented data assets
+that support the development, adjustment, and evaluation of the proposed
+grading workflow. In this sense, the thesis contributes not only a grading
+application, but also a realistic data foundation that makes the application
+more practically grounded.
+
+\section{Chapter Summary}
+\label{section:5.5}
+
+This chapter summarized the principal solutions and contributions of the thesis. The first contribution is a structured answer-sheet alignment and OMR pipeline that supports recognition of structured grading fields under ordinary image-capture conditions. The second contribution is a two-stage OCR pipeline for recognizing Vietnamese student names, using YOLO-based word detection and CRNN-based sequence recognition. The third contribution is a human-in-the-loop review architecture that maintains teacher oversight of final grading confirmation while still benefiting from automatic OCR and OMR processing. The fourth contribution is the preparation of practical OCR/OMR data resources that support application-oriented development and evaluation.
+
+Taken together, these contributions demonstrate that the thesis integrates recognition techniques into a coherent, reviewable grading workflow tailored to the target educational context. Image preprocessing, structured mark recognition, student-name recognition, practical OCR/OMR data preparation, and reviewable result management are combined into one teacher-oriented system. On that basis, the next chapter discusses the limitations of the current work and suggests directions for future development.
+
+\end{document}

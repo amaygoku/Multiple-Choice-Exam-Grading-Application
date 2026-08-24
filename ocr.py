@@ -1,69 +1,87 @@
+from __future__ import annotations
+
 import os
+import sys
+from pathlib import Path
+from typing import Optional
 
 import cv2
 import numpy as np
-from PIL import Image
 
 from extract_code import extract_id_and_code, extract_id_and_code_image
 
 
-OCR_AVAILABLE = False
+SCRIPT_DIR = Path(__file__).resolve().parent
+DETECT_TEXT_DIR = SCRIPT_DIR / "detect_text"
+if str(DETECT_TEXT_DIR) not in sys.path:
+    sys.path.insert(0, str(DETECT_TEXT_DIR))
+
 try:
-    from vietocr.tool.config import Cfg
-    from vietocr.tool.predictor import Predictor
+    import torch
+    from yolo_crnn_pipeline import (
+        DEFAULT_CRNN_WEIGHTS,
+        DEFAULT_YOLO_WEIGHTS,
+        build_ocr_runtime,
+        process_image_bgr,
+    )
 
-    config = Cfg.load_config_from_name("vgg_seq2seq")
-    config["weights"] = "./seq2seqocr2.pth"
-    config["cnn"]["pretrained"] = False
-    config["predictor"]["beam_width"] = 5
-    config["device"] = "cpu"
-    detector = Predictor(config)
     OCR_AVAILABLE = True
-except Exception as e:
-    print(f"[OCR LOAD ERROR] {e}")
+except Exception as exc:  # pragma: no cover - runtime fallback
+    OCR_AVAILABLE = False
+    _OCR_IMPORT_ERROR = exc
+    torch = None  # type: ignore[assignment]
+    build_ocr_runtime = None  # type: ignore[assignment]
+    process_image_bgr = None  # type: ignore[assignment]
+    DEFAULT_YOLO_WEIGHTS = None  # type: ignore[assignment]
+    DEFAULT_CRNN_WEIGHTS = None  # type: ignore[assignment]
+    print(f"[OCR LOAD ERROR] {exc}")
 
 
-def kmeans_binarize(img):
-    if len(img.shape) == 3:
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    else:
-        gray = img
-
-    pixel_values = np.float32(gray.reshape((-1, 1)))
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
-    _, labels, centers = cv2.kmeans(pixel_values, 2, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-    centers = np.uint8(centers)
-    bg_label, fg_label = (0, 1) if centers[0] > centers[1] else (1, 0)
-    res = np.zeros_like(labels, dtype=np.uint8)
-    res[labels == bg_label] = 255
-    res[labels == fg_label] = 0
-    return res.reshape(gray.shape)
+_OCR_RUNTIME = None
 
 
-def adaptive_resize_pad(img_np, target_h=50, target_w=512):
-    h, w = img_np.shape[:2]
-    new_w = int(w * (target_h / h))
-    if new_w > target_w:
-        resized = cv2.resize(img_np, (target_w, target_h), interpolation=cv2.INTER_AREA)
-        new_w = target_w
-    else:
-        resized = cv2.resize(img_np, (new_w, target_h), interpolation=cv2.INTER_AREA)
-    pad_right = target_w - new_w
-    return cv2.copyMakeBorder(resized, 0, 0, 0, pad_right, cv2.BORDER_CONSTANT, value=255)
+def get_ocr_runtime():
+    global _OCR_RUNTIME
+    if _OCR_RUNTIME is not None:
+        return _OCR_RUNTIME
+    if not OCR_AVAILABLE:
+        return None
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    _OCR_RUNTIME = build_ocr_runtime(
+        yolo_weights=DEFAULT_YOLO_WEIGHTS,
+        crnn_weights=DEFAULT_CRNN_WEIGHTS,
+        device=device,
+    )
+    return _OCR_RUNTIME
 
 
 def ocr_read_name_image(crop_img):
-    if not OCR_AVAILABLE:
-        return "KHONG CO MODEL OCR"
     if crop_img is None:
         return ""
 
+    runtime = get_ocr_runtime()
+    if runtime is None:
+        return "KHONG CO MODEL OCR"
+
     try:
-        cleaned_img_np = kmeans_binarize(crop_img)
-        cleaned_img_np = adaptive_resize_pad(cleaned_img_np)
-        cleaned_img_pil = Image.fromarray(cleaned_img_np).convert("RGB")
-        return detector.predict(cleaned_img_pil)
-    except Exception:
+        result = process_image_bgr(
+            image_bgr=crop_img,
+            runtime=runtime,
+            image_name="name_crop",
+            image_path_repr=None,
+            conf=0.25,
+            iou=0.45,
+            pad=0,
+            min_area=0,
+            save_crops_dir=None,
+            save_annotated_dir=None,
+            debug=False,
+            save_debug_dir=None,
+        )
+        return result["joined_text"] or result["compact_text"] or ""
+    except Exception as exc:
+        print(f"[ERROR] OCR name failed: {exc}")
         return "LOI OCR"
 
 

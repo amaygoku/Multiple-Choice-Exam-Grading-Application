@@ -1,0 +1,98 @@
+{
+  "version": "4.0.0-beta.7",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "text",
+      "score": 0.9499562382698059,
+      "points": [
+        [
+          184.44503474235535,
+          14.525500965118407
+        ],
+        [
+          239.96175599098206,
+          14.525500965118407
+        ],
+        [
+          239.96175599098206,
+          54.02376203536987
+        ],
+        [
+          184.44503474235535,
+          54.02376203536987
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9444414377212524,
+      "points": [
+        [
+          39.11628261804581,
+          13.091807222366333
+        ],
+        [
+          116.63682922124863,
+          13.091807222366333
+        ],
+        [
+          116.63682922124863,
+          59.437590265274046
+        ],
+        [
+          39.11628261804581,
+          59.437590265274046
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9315666556358337,
+      "points": [
+        [
+          130.7161500453949,
+          15.066140270233154
+        ],
+        [
+          157.73065342903138,
+          15.066140270233154
+        ],
+        [
+          157.73065342903138,
+          47.64906806945801
+        ],
+        [
+          130.7161500453949,
+          47.64906806945801
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "8442421114389566cc29_crop_04.png",
+  "imageData": null,
+  "imageHeight": 62,
+  "imageWidth": 647
+}

@@ -54,21 +54,28 @@ def normalize_code_grid(image):
         return None, None
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+    thresh = cv2.adaptiveThreshold(
+        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 51, 5
+    )
 
     cnts, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if not cnts:
-        return None, None
-
-    contour = max(cnts, key=cv2.contourArea)
-    peri = cv2.arcLength(contour, True)
-    approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
-
-    if len(approx) == 4:
-        pts = approx.reshape(4, 2)
+        pts = np.array([[0, 0], [gray.shape[1]-1, 0], [gray.shape[1]-1, gray.shape[0]-1], [0, gray.shape[0]-1]], dtype="float32")
     else:
-        rect = cv2.minAreaRect(contour)
-        pts = cv2.boxPoints(rect)
+        contour = max(cnts, key=cv2.contourArea)
+        crop_area = gray.shape[0] * gray.shape[1]
+        
+        # If the detected contour is too small (broken border), fallback to using the whole crop
+        if cv2.contourArea(contour) < crop_area * 0.50:
+            pts = np.array([[0, 0], [gray.shape[1]-1, 0], [gray.shape[1]-1, gray.shape[0]-1], [0, gray.shape[0]-1]], dtype="float32")
+        else:
+            peri = cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
+            if len(approx) == 4:
+                pts = approx.reshape(4, 2)
+            else:
+                rect = cv2.minAreaRect(contour)
+                pts = cv2.boxPoints(rect)
 
     warped_gray = four_point_transform(gray, pts)
     from omr_pipeline import DEFAULT_OMR_CONFIG, normalize_paper_lighting
@@ -76,7 +83,12 @@ def normalize_code_grid(image):
     warped_thresh = cv2.threshold(warped_gray, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
 
     if warped_thresh.shape[1] <= 2 * GRID_PAD or warped_thresh.shape[0] <= 2 * GRID_PAD:
-        return None, None
+        # Fallback if warped area is tiny
+        norm_gray = normalize_paper_lighting(gray, DEFAULT_OMR_CONFIG)
+        norm_thresh = cv2.threshold(norm_gray, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+        crop_gray = norm_gray[GRID_PAD:norm_gray.shape[0] - GRID_PAD, GRID_PAD:norm_gray.shape[1] - GRID_PAD]
+        crop_thresh = norm_thresh[GRID_PAD:norm_thresh.shape[0] - GRID_PAD, GRID_PAD:norm_thresh.shape[1] - GRID_PAD]
+        return crop_gray, crop_thresh
 
     crop_gray = warped_gray[GRID_PAD:warped_gray.shape[0] - GRID_PAD, GRID_PAD:warped_gray.shape[1] - GRID_PAD]
     crop_thresh = warped_thresh[GRID_PAD:warped_thresh.shape[0] - GRID_PAD, GRID_PAD:warped_thresh.shape[1] - GRID_PAD]

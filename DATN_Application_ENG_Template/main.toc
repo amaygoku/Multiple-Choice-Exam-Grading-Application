@@ -1,0 +1,86 @@
+\ttl@change@i {\@ne }{chapter}{0.0cm}{\bfseries \vspace {0.3cm}}{{\bfseries {\scshape } CHAPTER \thecontentslabel .\ }}{}{\titlerule *[0.3pc]{.}\contentspage }\relax 
+\ttl@change@v {chapter}{}{}{}\relax 
+\ttl@change@i {\@ne }{section}{0.0cm}{\vspace {0.3cm}}{\thecontentslabel \ }{}{\titlerule *[0.3pc]{.}\contentspage }\relax 
+\ttl@change@v {section}{}{}{}\relax 
+\ttl@change@i {\@ne }{subsection}{1.0cm}{\vspace {0.3cm}}{\thecontentslabel \ }{}{\titlerule *[0.3pc]{.}\contentspage }\relax 
+\ttl@change@v {subsection}{}{}{}\relax 
+\thispagestyle {empty}
+\contentsline {chapter}{\numberline {1}INTRODUCTION}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Motivation}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Objectives and scope of the graduation thesis}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Tentative solution}{3}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Thesis organization}{4}{section.1.4}%
+\contentsline {chapter}{\numberline {2}REQUIREMENT SURVEY AND ANALYSIS}{6}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Survey of Existing Solutions}{6}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Functional overview}{7}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}General use case diagram}{8}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Detailed use case diagrams}{10}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Business process}{11}{subsection.2.2.3}%
+\contentsline {section}{\numberline {2.3}Functional description}{13}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Manage classes and students}{13}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Manage examinations, exam codes, and answer keys}{13}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Process answer sheet}{14}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}Review recognition result}{15}{subsection.2.3.4}%
+\contentsline {subsection}{\numberline {2.3.5}Save submission}{16}{subsection.2.3.5}%
+\contentsline {subsection}{\numberline {2.3.6}View results and analytics}{17}{subsection.2.3.6}%
+\contentsline {subsection}{\numberline {2.3.7}Edit saved submission}{18}{subsection.2.3.7}%
+\contentsline {section}{\numberline {2.4}Non-functional requirements}{19}{section.2.4}%
+\contentsline {chapter}{\numberline {3}TECHNOLOGIES USED IN THE APPLICATION}{22}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Overall Technology Blocks}{22}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Frontend Interaction Block}{22}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}React}{22}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}TypeScript}{23}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Vite}{23}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Backend and Data-Management Block}{23}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}FastAPI}{24}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}SQLAlchemy}{24}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}SQLite}{24}{subsection.3.3.3}%
+\contentsline {section}{\numberline {3.4}Document-Processing and OMR Block}{24}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}OpenCV}{25}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Rule-Based OMR}{25}{subsection.3.4.2}%
+\contentsline {section}{\numberline {3.5}OCR Block for Student-Name Recognition}{25}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}YOLO}{26}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}CRNN}{26}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}PyTorch}{26}{subsection.3.5.3}%
+\contentsline {section}{\numberline {3.6}Chapter Summary}{27}{section.3.6}%
+\contentsline {chapter}{\numberline {4}DESIGN, IMPLEMENTATION, AND EVALUATION}{28}{chapter.4}%
+\contentsline {section}{\numberline {4.1}System Architecture and Workflow Design}{28}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Overall Application Architecture}{28}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}OMR Pipeline Workflow}{29}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}OCR Pipeline Workflow}{32}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Database Design}{33}{subsection.4.1.4}%
+\contentsline {subsection}{\numberline {4.1.5}User Interface Design}{37}{subsection.4.1.5}%
+\contentsline {section}{\numberline {4.2}Detailed Implementation}{40}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}OMR Implementation}{41}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}OCR Implementation}{42}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}User Interface Implementation}{44}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Experiment and Evaluation}{47}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}OMR Evaluation}{47}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}OCR Evaluation}{49}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}End-to-End Grading Workflow Evaluation}{51}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}Processing Performance}{53}{subsection.4.3.4}%
+\contentsline {subsection}{\numberline {4.3.5}Non-functional Requirement Verification}{54}{subsection.4.3.5}%
+\contentsline {section}{\numberline {4.4}Chapter Summary}{57}{section.4.4}%
+\contentsline {chapter}{\numberline {5}SOLUTION AND CONTRIBUTION}{59}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Structured Answer-Sheet Alignment and OMR Pipeline}{59}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Problem}{59}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Solution}{59}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Result}{60}{subsection.5.1.3}%
+\contentsline {section}{\numberline {5.2}Two-Stage OCR Pipeline for Vietnamese Student-Name Recognition}{60}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Problem}{60}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Solution}{61}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Result}{61}{subsection.5.2.3}%
+\contentsline {section}{\numberline {5.3}Human-in-the-Loop Review Architecture}{61}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Problem}{61}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Solution}{62}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Result}{62}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Practical Data Collection and Preparation for OCR/OMR}{63}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Problem}{63}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Solution}{63}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}Result}{65}{subsection.5.4.3}%
+\contentsline {section}{\numberline {5.5}Chapter Summary}{65}{section.5.5}%
+\contentsline {chapter}{\numberline {6}CONCLUSION AND FUTURE WORK}{67}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Conclusion}{67}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Future Work}{67}{section.6.2}%
+\contentsline {chapter}{REFERENCE}{70}{section*.48}%
+\contentsfinish 

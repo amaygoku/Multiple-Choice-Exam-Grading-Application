@@ -1,0 +1,28 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Comparison of representative existing grading solutions}}{7}{table.caption.8}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces Use case description: Manage classes and students}}{13}{table.caption.13}%
+\contentsline {table}{\numberline {2.3}{\ignorespaces Use case description: Manage examinations, exam codes, and answer keys}}{14}{table.caption.14}%
+\contentsline {table}{\numberline {2.4}{\ignorespaces Use case description: Process answer sheet}}{15}{table.caption.15}%
+\contentsline {table}{\numberline {2.5}{\ignorespaces Use case description: Review recognition result}}{16}{table.caption.16}%
+\contentsline {table}{\numberline {2.6}{\ignorespaces Use case description: Save submission}}{17}{table.caption.17}%
+\contentsline {table}{\numberline {2.7}{\ignorespaces Use case description: View results and analytics}}{18}{table.caption.18}%
+\contentsline {table}{\numberline {2.8}{\ignorespaces Use case description: Edit saved submission}}{19}{table.caption.19}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Main relationships among the core entities}}{35}{table.caption.24}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Main entities in the database design}}{35}{table.caption.25}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Core academic and grading fields stored in the submission table}}{36}{table.caption.26}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Review-artifact and metadata fields stored in the submission table}}{37}{table.caption.27}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces OMR evaluation summary on the prepared answer-sheet dataset}}{48}{table.caption.37}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces OMR evaluation results by dataset subset}}{48}{table.caption.38}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Performance of the YOLO-based text detection model}}{49}{table.caption.39}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces Performance of the CRNN-based text recognition model}}{50}{table.caption.40}%
+\contentsline {table}{\numberline {4.9}{\ignorespaces Performance of the end-to-end OCR pipeline}}{50}{table.caption.41}%
+\contentsline {table}{\numberline {4.10}{\ignorespaces Main end-to-end workflow scenarios considered in the grading application}}{52}{table.caption.42}%
+\contentsline {table}{\numberline {4.11}{\ignorespaces Measured backend response time for end-to-end answer-sheet processing}}{54}{table.caption.43}%
+\contentsline {table}{\numberline {4.12}{\ignorespaces Verification of the main non-functional requirements and their acceptance criteria}}{57}{table.caption.44}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsfinish 
+\contentsfinish 

@@ -1,0 +1,5 @@
+File: 06751a1a402ac174983b_crop_01_word_00.png | GT: Lâm | Pred: ÈHặ | Match: False
+File: 06751a1a402ac174983b_crop_01_word_01.png | GT: Tùng | Pred: ẸổẶẳ | Match: False
+File: 06751a1a402ac174983b_crop_01_word_02.png | GT: Nguyễn | Pred: ẺẳẫậkẶ | Match: False
+File: 06751a1a402ac174983b_crop_02_word_00.png | GT: Trang | Pred: ẸẦạẶẳ | Match: False
+File: 06751a1a402ac174983b_crop_02_word_01.png | GT: Thị | Pred: ẸẲn | Match: False

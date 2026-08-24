@@ -1,0 +1,265 @@
+\documentclass[../Main.tex]{subfiles}
+\begin{document}
+
+\section{Overall Technology Blocks}
+\label{section:3.1}
+
+To address the requirements identified in Chapter~2, the proposed grading
+application is organized into four main technology blocks: a frontend
+interaction block, a backend and data-management block, a document-processing
+and OMR block, and an OCR block for student-name recognition. This organization
+is chosen because the application is not only a recognition pipeline, but also a
+teacher-oriented web application that must support scanning, review, storage,
+and later result inspection in one workflow.
+
+The frontend interaction block is responsible for the teacher-facing interface.
+Its purpose is to support class and examination management, answer-sheet image
+capture or upload, review of OCR/OMR outputs, submission confirmation, and
+later result inspection. The backend and data-management block is responsible
+for request handling, workflow coordination, and persistent storage of academic
+and grading data.
+
+The document-processing and OMR block is responsible for transforming a raw
+answer-sheet image into structured mark-based information. Its purpose is to
+align the answer sheet, extract the predefined functional regions, and recognize
+student ID, exam code, and selected answers. The OCR block complements this
+process by handling the student-name text region, which cannot be processed
+reliably by OMR alone. Together, these four blocks form the technological
+foundation of the proposed application.
+
+\section{Frontend Interaction Block}
+\label{section:3.2}
+
+The frontend interaction block is the part of the application through which the
+teacher performs daily grading tasks. Its purpose is to provide an interactive
+interface for academic data management, answer-sheet scanning, review of
+recognition results, submission handling, and later result inspection. In this
+thesis, this block is implemented using React, TypeScript, and Vite.
+Accordingly, this block mainly addresses the Chapter~2 requirements for
+managing academic data, reviewing recognition results, saving submissions, and
+viewing stored grading outcomes.
+
+\subsection{React}
+\label{subsection:3.2.1}
+
+React is a JavaScript library for building component-based user interfaces
+\cite{react2026}. In this thesis, it belongs to the frontend interaction block,
+whose goal is to support teacher-facing operations such as class management,
+answer-sheet review, submission inspection, and analytics viewing.
+
+React is used because these views are highly interactive and depend on changing
+application state. When the teacher edits an answer key, reviews OCR/OMR
+outputs, switches filters, or opens a saved submission, the displayed
+information must update immediately and consistently. Within this block, React
+provides the component structure that organizes these views and keeps the user
+interface aligned with the grading workflow described in Chapter~2.
+
+\subsection{TypeScript}
+\label{subsection:3.2.2}
+
+TypeScript is the typed programming language used together with React in the
+frontend block~\cite{typescript2026}. In the proposed application, it is mainly
+used to represent structured data exchanged between the frontend and the
+backend, including classes, students, examinations, exam codes, submissions,
+and grading results.
+
+TypeScript is chosen because the frontend does not work with simple unstructured
+pages; instead, it manages many related data objects that must remain consistent
+across review, result-management, and analytics screens. Within the frontend
+interaction block, TypeScript helps define these data structures clearly and
+reduces interface-level errors when API payloads are created, received, and
+updated.
+
+\subsection{Vite}
+\label{subsection:3.2.3}
+
+Vite is the build and development tool used for the frontend interaction block
+~\cite{vite2026}. Its role in this thesis is not to provide an end-user feature,
+but to support the implementation and maintenance of the React-TypeScript
+interface during development.
+
+Vite is selected because the project requires a lightweight and practical
+frontend workflow rather than a heavy build environment. Within the frontend
+block, it is used to run the development server, bundle the application, and
+keep frontend development and testing simple during implementation.
+
+\section{Backend and Data-Management Block}
+\label{section:3.3}
+
+The backend and data-management block is responsible for connecting the
+teacher-facing interface with the recognition pipeline and the persistent
+storage layer. Its purpose is to receive frontend requests, coordinate
+processing steps, expose application APIs, and store academic and grading
+records. In this thesis, this block is implemented using FastAPI, SQLAlchemy,
+and SQLite.
+Accordingly, this block mainly addresses the Chapter~2 requirements for
+academic-data management, submission storage, and retrieval of saved results
+and analytics.
+
+\subsection{FastAPI}
+\label{subsection:3.3.1}
+
+FastAPI is a Python web framework for building APIs with structured request and
+response handling~\cite{fastapi2026}. In this thesis, it belongs to the backend
+and data-management block, whose purpose is to connect the teacher-facing
+interface with the recognition and storage layers.
+
+FastAPI is used because the recognition pipeline is also implemented in Python,
+so web requests can be connected directly with OCR/OMR processing without
+introducing a separate service layer. Within the backend block, FastAPI
+provides the endpoints for answer-sheet processing, submission storage,
+academic-data management, and result or analytics retrieval. Alternative
+backend frameworks such as Express or Spring could also be used, but they would
+require additional integration effort because the recognition pipeline is
+already implemented in Python.
+
+\subsection{SQLAlchemy}
+\label{subsection:3.3.2}
+
+SQLAlchemy is the object-relational mapping tool used in the backend and
+data-management block~\cite{sqlalchemy2026}. In the proposed application, it is
+used to define and manipulate the main academic entities, including classes,
+students, examinations, exam codes, answer keys, and submissions.
+
+SQLAlchemy is chosen because the application needs a structured and maintainable
+way to work with persistent data through the backend APIs. Within this block, it
+supports model definition, database-session handling, and CRUD operations,
+allowing the backend logic to work with structured objects rather than raw SQL
+statements.
+
+\subsection{SQLite}
+\label{subsection:3.3.3}
+
+SQLite is the persistent storage technology used in the current implementation
+~\cite{sqlite2026}. It is part of the backend and data-management block because
+this block is responsible for storing academic configuration, saved
+submissions, grading results, and related metadata.
+
+SQLite is selected because the proposed application is intended for a single
+teacher and does not target large-scale multi-user deployment. Within this
+block, it provides a lightweight local database that is easy to set up and
+maintain during development and practical use.
+
+\section{Document-Processing and OMR Block}
+\label{section:3.4}
+
+The document-processing and OMR block is responsible for handling the
+structured visual parts of the answer sheet. Its purpose is to transform a raw
+camera-captured or uploaded image into aligned regions from which mark-based
+grading information can be extracted. In this thesis, this block is implemented
+mainly with OpenCV and rule-based OMR procedures.
+Accordingly, this block mainly addresses the Chapter~2 requirements for answer-sheet image
+processing and recognition of structured grading fields.
+
+\subsection{OpenCV}
+\label{subsection:3.4.1}
+
+OpenCV is a computer-vision library that provides image-processing and
+geometric-transformation functions~\cite{bradski2000opencv}. In this thesis, it
+belongs to the document-processing and OMR block, whose purpose is to transform
+raw answer-sheet images into aligned and analyzable regions.
+
+OpenCV is used because the application must process practical input images that
+may contain rotation, perspective distortion, uneven lighting, or background
+noise. Within this block, it is used for grayscale conversion, thresholding,
+contour detection, perspective transformation, and region-based cropping.
+Alternative libraries such as Pillow or scikit-image could support some
+preprocessing tasks, but they are less suitable as the main technology because
+this application also requires contour-based alignment and perspective
+transformation.
+
+\subsection{Rule-Based OMR}
+\label{subsection:3.4.2}
+
+Rule-based OMR is the recognition approach used on top of the OpenCV-based
+preprocessing pipeline in this block. Its role is to extract structured
+mark-based information from the aligned answer sheet, specifically the student
+ID, exam code, and selected answers.
+
+Rule-based OMR is chosen because these fields follow predefined layouts in which
+each intended value corresponds to a filled mark at a known position. Within
+the document-processing and OMR block, the aligned and cropped regions are
+divided into cells or answer-choice areas, and the marks are analyzed through
+fill evidence and threshold-based decision rules. An end-to-end learning-based
+recognizer or specialized OMR hardware could also be considered, but rule-based
+OMR is more appropriate here because the supported answer sheet has a fixed
+layout and the thesis targets a lightweight application that works with
+ordinary captured images.
+
+\section{OCR Block for Student-Name Recognition}
+\label{section:3.5}
+
+The OCR block is responsible for the textual part of the answer sheet that
+cannot be handled effectively by OMR. Its purpose is to recognize the
+student-name region after the answer sheet has already been aligned and cropped
+by the document-processing block. In this thesis, this block is implemented
+using a YOLO-based text detector, a CRNN-based recognizer, and PyTorch.
+Accordingly, this block mainly addresses the Chapter~2 requirement for recognizing textual
+student information that does not follow a fixed mark grid.
+
+\subsection{YOLO}
+\label{subsection:3.5.1}
+
+YOLO is an object-detection framework designed for efficient visual detection
+tasks~\cite{redmon2016yolo}. In this thesis, it belongs to the OCR block, whose
+purpose is to recognize the student-name region that cannot be handled
+reliably by OMR.
+
+YOLO is used because the student-name region may contain multiple words with
+variable spacing and writing position. Within the OCR block, it is used to
+localize the word-level text regions inside the cropped student-name area
+before recognition is performed. Alternative text-detection approaches such as
+CRAFT or Faster~R-CNN could also be considered, but YOLO is chosen because it
+offers a practical balance between detection performance and implementation
+simplicity for this thesis.
+
+\subsection{CRNN}
+\label{subsection:3.5.2}
+
+CRNN is a sequence-recognition model that combines convolutional feature
+extraction with recurrent sequence modeling. In the OCR block, it is used to
+recognize the text content of the word images detected by YOLO.
+
+CRNN is chosen because OCR on student-name images is not well suited to
+explicit character-by-character segmentation, especially under handwriting
+variation or image noise. Within this block, the detected word images are
+passed to the CRNN recognizer, which predicts the corresponding text sequence.
+The theoretical basis of this approach is related to the CTC framework
+introduced by Graves et al.~\cite{graves2006ctc} and the CRNN-based
+sequence-recognition approach described by Shi et al.~\cite{shi2017crnn}.
+General-purpose OCR tools such as Tesseract or cloud OCR services are possible
+alternatives, but they are less aligned with the handwritten Vietnamese
+name-recognition requirement and the self-contained scope of the application.
+
+\subsection{PyTorch}
+\label{subsection:3.5.3}
+
+PyTorch is the deep-learning framework used to implement and run the OCR block
+~\cite{paszke2019pytorch}. In this thesis, it provides the runtime environment
+for loading and executing the OCR models inside the Python backend.
+
+PyTorch is selected because it supports flexible model implementation and
+integrates naturally with the surrounding Python-based backend. Within the OCR
+block, it is used to execute the YOLO and CRNN models so that student-name OCR
+results can be returned to the main grading workflow together with the OMR
+outputs.
+
+\section{Chapter Summary}
+\label{section:3.6}
+
+This chapter has presented the technological framework of the proposed grading
+application in terms of its main functional blocks. The frontend interaction
+block supports teacher-facing operations, the backend and data-management block
+coordinates requests and stores persistent records, the document-processing and
+OMR block handles structured mark-based regions, and the OCR block handles the
+student-name text region.
+
+The technologies used in these blocks are chosen according to their roles in the
+application. React, TypeScript, and Vite support the frontend interface;
+FastAPI, SQLAlchemy, and SQLite support backend coordination and persistent
+storage; OpenCV and rule-based OMR support answer-sheet alignment and
+mark-based recognition; and YOLO, CRNN, and PyTorch support student-name OCR.
+Based on this technological framework, the next chapter presents the design,
+implementation, and evaluation of the proposed grading application.
+
+\end{document}

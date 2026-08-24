@@ -1,0 +1,98 @@
+{
+  "version": "4.0.0-beta.7",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "text",
+      "score": 0.9465159773826599,
+      "points": [
+        [
+          117.96582794189453,
+          5.30078125
+        ],
+        [
+          193.565673828125,
+          5.30078125
+        ],
+        [
+          193.565673828125,
+          58.8619384765625
+        ],
+        [
+          117.96582794189453,
+          58.8619384765625
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9460192322731018,
+      "points": [
+        [
+          31.359100341796875,
+          7.31781005859375
+        ],
+        [
+          100.96055603027344,
+          7.31781005859375
+        ],
+        [
+          100.96055603027344,
+          53.37896728515625
+        ],
+        [
+          31.359100341796875,
+          53.37896728515625
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9380511045455933,
+      "points": [
+        [
+          226.53138732910156,
+          17.04168701171875
+        ],
+        [
+          289.4072265625,
+          17.04168701171875
+        ],
+        [
+          289.4072265625,
+          55.47869873046875
+        ],
+        [
+          226.53138732910156,
+          55.47869873046875
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "d9ec05bd5394d2ca8b85_crop_02.png",
+  "imageData": null,
+  "imageHeight": 61,
+  "imageWidth": 640
+}

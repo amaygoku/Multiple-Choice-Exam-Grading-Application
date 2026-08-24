@@ -1,0 +1,98 @@
+{
+  "version": "4.0.0-beta.7",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "text",
+      "score": 0.9510053396224976,
+      "points": [
+        [
+          19.453838631510735,
+          15.642813968658448
+        ],
+        [
+          72.85876665115356,
+          15.642813968658448
+        ],
+        [
+          72.85876665115356,
+          48.992521572113034
+        ],
+        [
+          19.453838631510735,
+          48.992521572113034
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9486986994743347,
+      "points": [
+        [
+          89.15211248397827,
+          8.565572738647461
+        ],
+        [
+          155.49272632598877,
+          8.565572738647461
+        ],
+        [
+          155.49272632598877,
+          50.35800294876098
+        ],
+        [
+          89.15211248397827,
+          50.35800294876098
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9307295083999634,
+      "points": [
+        [
+          170.8445502281189,
+          8.792978143692016
+        ],
+        [
+          241.7459520816803,
+          8.792978143692016
+        ],
+        [
+          241.7459520816803,
+          46.930138731002806
+        ],
+        [
+          170.8445502281189,
+          46.930138731002806
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "b94eaf76f95f7801214e_crop_12.png",
+  "imageData": null,
+  "imageHeight": 62,
+  "imageWidth": 647
+}

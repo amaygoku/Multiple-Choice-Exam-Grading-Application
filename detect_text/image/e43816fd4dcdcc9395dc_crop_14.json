@@ -1,0 +1,99 @@
+{
+  "version": "4.0.0-beta.7",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "text",
+      "score": 0.9498034119606018,
+      "points": [
+        [
+          338.0438010215759,
+          0.08315162658691405
+        ],
+        [
+          386.42394380569453,
+          0.08315162658691405
+        ],
+        [
+          386.42394380569453,
+          45.08461570739746
+        ],
+        [
+          338.0438010215759,
+          45.08461570739746
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9322134256362915,
+      "points": [
+        [
+          153.13955657482146,
+          1.3831316471099853
+        ],
+        [
+          203.15320570468901,
+          1.3831316471099853
+        ],
+        [
+          203.15320570468901,
+          46.29267516136169
+        ],
+        [
+          153.13955657482146,
+          46.29267516136169
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": 0.9240045547485352,
+      "points": [
+        [
+          235.30536727905272,
+          0.0
+        ],
+        [
+          296.61730499267577,
+          0.0
+        ],
+        [
+          296.61730499267577,
+          46.39511232376098
+        ],
+        [
+          235.30536727905272,
+          46.39511232376098
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "e43816fd4dcdcc9395dc_crop_14.png",
+  "imageData": null,
+  "imageHeight": 60,
+  "imageWidth": 643,
+  "description": ""
+}
